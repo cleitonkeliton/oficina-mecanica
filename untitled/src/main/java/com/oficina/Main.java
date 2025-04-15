@@ -1,5 +1,3 @@
-package src.main;
-
 import src.main.veiculo.Veiculo;
 
 public class Main {
