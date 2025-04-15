@@ -1,9 +1,8 @@
-package database;
+package com.oficina.database;
 
-import database.DatabaseConnection;
-import servico.Servico;
-import servico.OrdemDeSv;
-
+import com.oficina.database.DatabaseConnection;
+import com.oficina.servico.Servico;
+import com.oficina.servico.OrdemDeSv;
 import java.sql.*;
 
 public class OrdemDeSvDAO {

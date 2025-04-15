@@ -1,13 +1,15 @@
-import database.ClienteDAO;
+package com.oficina;
+
+import com.oficina.database.ClienteDAO;
 import veiculo.Veiculo;
 
 public class Main {
     public static void main(String[] args) {
         ClienteDAO clienteDAO = new ClienteDAO();
-        database.VeiculoDAO veiculoDAO = new database.VeiculoDAO();
+        com.oficina.database.VeiculoDAO veiculoDAO = new com.oficina.database.VeiculoDAO();
 
         // Inserir um cliente
-        cliente.Cliente novoCliente = new cliente.Cliente("João Silva", "123.456.789-00", "(11) 9999-8888");
+        com.oficina.cliente.Cliente novoCliente = new com.oficina.cliente.Cliente("João Silva", "123.456.789-00", "(11) 9999-8888");
         clienteDAO.inserirCliente(novoCliente);
 
         // Listar clientes

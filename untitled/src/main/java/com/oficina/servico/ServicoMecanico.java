@@ -1,6 +1,4 @@
-package servico;
-
-import servico.Servico;
+package com.oficina.servico;
 
 public class ServicoMecanico extends Servico {
     //construtor SUPER.

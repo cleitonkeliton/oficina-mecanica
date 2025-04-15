@@ -1,7 +1,6 @@
-package database;
+package com.oficina.database;
 
-import cliente.Cliente;
-
+import com.oficina.cliente.Cliente;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -13,7 +12,7 @@ public class ClienteDAO {
 
     public void inserirCliente(Cliente cliente) {
         String sql = "INSERT INTO clientes (nome, cpf, telefone) VALUES (?, ?, ?)";
-        try (Connection connection = database.DatabaseConnection.getConnection();
+        try (Connection connection = com.oficina.database.DatabaseConnection.getConnection();
              PreparedStatement statement = connection.prepareStatement(sql)) {
             statement.setString(1, cliente.getNome());
             statement.setString(2, cliente.getCpf());
@@ -25,14 +24,14 @@ public class ClienteDAO {
         }
     }
 
-    public cliente.Cliente buscarClientePorCpf(String cpf) {
+    public com.oficina.cliente.Cliente buscarClientePorCpf(String cpf) {
         String sql = "SELECT * FROM clientes WHERE cpf = ?";
-        try (Connection connection = database.DatabaseConnection.getConnection();
+        try (Connection connection = com.oficina.database.DatabaseConnection.getConnection();
              PreparedStatement statement = connection.prepareStatement(sql)) {
             statement.setString(1, cpf);
             try (ResultSet resultSet = statement.executeQuery()) {
                 if (resultSet.next()) {
-                    return new cliente.Cliente(
+                    return new com.oficina.cliente.Cliente(
                             resultSet.getString("nome"),
                             resultSet.getString("cpf"),
                             resultSet.getString("telefone")
@@ -45,14 +44,14 @@ public class ClienteDAO {
         return null;
     }
 
-    public List<cliente.Cliente> listarClientes() {
-        List<cliente.Cliente> clientes = new ArrayList<>();
+    public List<com.oficina.cliente.Cliente> listarClientes() {
+        List<com.oficina.cliente.Cliente> clientes = new ArrayList<>();
         String sql = "SELECT * FROM clientes";
-        try (Connection connection = database.DatabaseConnection.getConnection();
+        try (Connection connection = com.oficina.database.DatabaseConnection.getConnection();
              PreparedStatement statement = connection.prepareStatement(sql);
              ResultSet resultSet = statement.executeQuery()) {
             while (resultSet.next()) {
-                cliente.Cliente cliente = new cliente.Cliente(
+                com.oficina.cliente.Cliente cliente = new com.oficina.cliente.Cliente(
                         resultSet.getString("nome"),
                         resultSet.getString("cpf"),
                         resultSet.getString("telefone")

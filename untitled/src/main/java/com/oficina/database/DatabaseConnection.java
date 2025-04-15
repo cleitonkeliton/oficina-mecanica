@@ -1,4 +1,4 @@
-package database;
+package com.oficina.database;
 
 import com.zaxxer.hikari.HikariConfig;
 import com.zaxxer.hikari.HikariDataSource;
@@ -11,7 +11,7 @@ public class DatabaseConnection {
     private static final String USER = "seu_usuario";
     private static final String PASSWORD = "sua_senha";
 
-    private static HikariDataSource dataSource;
+    private static final HikariDataSource dataSource;
 
     static {
         try {

@@ -1,20 +1,19 @@
-package servico;
+package com.oficina.servico;
 
 import veiculo.Veiculo;
-
 import java.util.ArrayList;
 import java.util.List;
 
 public class OrdemDeSv {
     private final Veiculo veiculo;
-    private final List<servico.Servico> servicos; // Corrigido o nome da lista
+    private final List<com.oficina.servico.Servico> servicos;
 
     public OrdemDeSv(Veiculo veiculo) {
         this.veiculo = veiculo;
         this.servicos = new ArrayList<>();
     }
 
-    public void adicionarSv(servico.Servico servico) {
+    public void adicionarSv(com.oficina.servico.Servico servico) {
         this.servicos.add(servico); // Adiciona o serviço à lista de serviços
     }
 

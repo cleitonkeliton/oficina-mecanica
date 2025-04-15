@@ -1,7 +1,7 @@
-package oficina;
+package com.oficina.oficina;
 
-import cliente.Cliente;
-import servico.OrdemDeSv;
+import com.oficina.cliente.Cliente;
+import com.oficina.servico.OrdemDeSv;
 import veiculo.Veiculo;
 
 import java.util.ArrayList;

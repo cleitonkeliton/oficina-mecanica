@@ -1,4 +1,4 @@
-package servico;
+package com.oficina.servico;
 
 public abstract class Servico {
     private String descricaoSv;

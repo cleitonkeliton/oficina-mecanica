@@ -1,6 +1,6 @@
-package database;
+package com.oficina.database;
 
-import database.DatabaseConnection;
+import com.oficina.database.DatabaseConnection;
 import veiculo.Veiculo;
 
 import java.sql.Connection;

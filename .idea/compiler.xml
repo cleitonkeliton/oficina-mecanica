@@ -10,10 +10,8 @@
         <sourceTestOutputDir name="target/generated-test-sources/test-annotations" />
         <outputRelativeToContentRoot value="true" />
         <module name="pom.xml" />
+        <module name="oficina-valdevino" />
       </profile>
     </annotationProcessing>
-    <bytecodeTargetLevel>
-      <module name="oficina-valdevino" target="17" />
-    </bytecodeTargetLevel>
   </component>
 </project>
