@@ -1,4 +1,6 @@
-package src.main.database;
+package database;
+
+import cliente.Cliente;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
@@ -11,7 +13,7 @@ public class ClienteDAO {
 
     public void inserirCliente(Cliente cliente) {
         String sql = "INSERT INTO clientes (nome, cpf, telefone) VALUES (?, ?, ?)";
-        try (Connection connection = DatabaseConnection.getConnection();
+        try (Connection connection = database.DatabaseConnection.getConnection();
              PreparedStatement statement = connection.prepareStatement(sql)) {
             statement.setString(1, cliente.getNome());
             statement.setString(2, cliente.getCpf());
@@ -23,14 +25,14 @@ public class ClienteDAO {
         }
     }
 
-    public Cliente buscarClientePorCpf(String cpf) {
+    public cliente.Cliente buscarClientePorCpf(String cpf) {
         String sql = "SELECT * FROM clientes WHERE cpf = ?";
-        try (Connection connection = DatabaseConnection.getConnection();
+        try (Connection connection = database.DatabaseConnection.getConnection();
              PreparedStatement statement = connection.prepareStatement(sql)) {
             statement.setString(1, cpf);
             try (ResultSet resultSet = statement.executeQuery()) {
                 if (resultSet.next()) {
-                    return new Cliente(
+                    return new cliente.Cliente(
                             resultSet.getString("nome"),
                             resultSet.getString("cpf"),
                             resultSet.getString("telefone")
@@ -43,14 +45,14 @@ public class ClienteDAO {
         return null;
     }
 
-    public List<Cliente> listarClientes() {
-        List<Cliente> clientes = new ArrayList<>();
+    public List<cliente.Cliente> listarClientes() {
+        List<cliente.Cliente> clientes = new ArrayList<>();
         String sql = "SELECT * FROM clientes";
-        try (Connection connection = DatabaseConnection.getConnection();
+        try (Connection connection = database.DatabaseConnection.getConnection();
              PreparedStatement statement = connection.prepareStatement(sql);
              ResultSet resultSet = statement.executeQuery()) {
             while (resultSet.next()) {
-                Cliente cliente = new Cliente(
+                cliente.Cliente cliente = new cliente.Cliente(
                         resultSet.getString("nome"),
                         resultSet.getString("cpf"),
                         resultSet.getString("telefone")

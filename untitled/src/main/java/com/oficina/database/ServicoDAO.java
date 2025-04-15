@@ -1,7 +1,6 @@
-package src.main.database;
+package database;
 
-import src.main.servico.Servico;
-
+import servico.Servico;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;

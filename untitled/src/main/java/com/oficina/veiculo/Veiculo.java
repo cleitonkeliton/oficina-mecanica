@@ -1,6 +1,7 @@
-package src.main.veiculo;
+package veiculo;
 
-import src.main.cliente.Cliente;
+
+import cliente.Cliente;
 
 public class Veiculo {
     private String placa;

@@ -1,4 +1,4 @@
-package src.main.servico;
+package servico;
 
 public abstract class Servico {
     private String descricaoSv;

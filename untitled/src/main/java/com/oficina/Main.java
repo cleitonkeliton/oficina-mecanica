@@ -1,12 +1,13 @@
-import src.main.veiculo.Veiculo;
+import database.ClienteDAO;
+import veiculo.Veiculo;
 
 public class Main {
     public static void main(String[] args) {
         ClienteDAO clienteDAO = new ClienteDAO();
-        VeiculoDAO veiculoDAO = new VeiculoDAO();
+        database.VeiculoDAO veiculoDAO = new database.VeiculoDAO();
 
         // Inserir um cliente
-        Cliente novoCliente = new Cliente("João Silva", "123.456.789-00", "(11) 9999-8888");
+        cliente.Cliente novoCliente = new cliente.Cliente("João Silva", "123.456.789-00", "(11) 9999-8888");
         clienteDAO.inserirCliente(novoCliente);
 
         // Listar clientes

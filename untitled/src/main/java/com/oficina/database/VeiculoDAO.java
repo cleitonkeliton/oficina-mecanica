@@ -1,6 +1,7 @@
-package src.main.database;
+package database;
 
-import src.main.veiculo.Veiculo;
+import database.DatabaseConnection;
+import veiculo.Veiculo;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
@@ -38,7 +39,7 @@ public class VeiculoDAO {
              ResultSet rs = stmt.executeQuery()) {
 
             while (rs.next()) {
-                Cliente cliente = new Cliente(
+                cliente.Cliente cliente = new cliente.Cliente(
                         rs.getString("nome"),
                         rs.getString("cliente_cpf"),
                         rs.getString("telefone")

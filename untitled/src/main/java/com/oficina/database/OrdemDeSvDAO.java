@@ -1,7 +1,8 @@
-package src.main.database;
+package database;
 
-import src.main.servico.Servico;
-import src.main.servico.OrdemDeSv;
+import database.DatabaseConnection;
+import servico.Servico;
+import servico.OrdemDeSv;
 
 import java.sql.*;
 
