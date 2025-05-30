@@ -1,7 +1,6 @@
-package veiculo;
+package com.oficina.veiculo;
 
-
-import cliente.Cliente;
+import com.oficina.cliente.Cliente;
 
 public class Veiculo {
     private String placa;

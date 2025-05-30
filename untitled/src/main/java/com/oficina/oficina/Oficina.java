@@ -2,7 +2,7 @@ package com.oficina.oficina;
 
 import com.oficina.cliente.Cliente;
 import com.oficina.servico.OrdemDeSv;
-import veiculo.Veiculo;
+import com.oficina.veiculo.Veiculo;
 
 import java.util.ArrayList;
 import java.util.Collections;

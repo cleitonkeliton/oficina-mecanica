@@ -1,6 +1,6 @@
 package com.oficina.servico;
 
-import veiculo.Veiculo;
+import com.oficina.veiculo.Veiculo;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -15,11 +15,12 @@ public class OrdemDeSv {
 
     public void adicionarSv(com.oficina.servico.Servico servico) {
         this.servicos.add(servico); // Adiciona o serviço à lista de serviços
+
     }
 
     public double calcularSv() {
         double total = 0;
-        for (servico.Servico servico : servicos) {
+        for (com.oficina.servico.Servico servico : servicos) {
             total += servico.getValor();
         }
         return total;
@@ -31,7 +32,7 @@ public class OrdemDeSv {
         sb.append("Ordem de serviço para: ").append(veiculo.toString()).append("\n")
                 .append("Serviços:\n");
 
-        for (servico.Servico servico : servicos) {
+        for (com.oficina.servico.Servico servico : servicos) {
             sb.append("- ").append(servico.toString()).append("\n");
         }
 
@@ -45,7 +46,7 @@ public class OrdemDeSv {
         return veiculo;
     }
 
-    public List<servico.Servico> getServicos() {
+    public List<com.oficina.servico.Servico> getServicos() {
         return servicos;
     }
 }

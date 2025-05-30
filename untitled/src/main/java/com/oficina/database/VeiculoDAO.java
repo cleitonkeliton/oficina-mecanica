@@ -1,8 +1,6 @@
 package com.oficina.database;
 
-import com.oficina.database.DatabaseConnection;
-import veiculo.Veiculo;
-
+import com.oficina.veiculo.Veiculo;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -39,7 +37,7 @@ public class VeiculoDAO {
              ResultSet rs = stmt.executeQuery()) {
 
             while (rs.next()) {
-                cliente.Cliente cliente = new cliente.Cliente(
+                com.oficina.cliente.Cliente cliente = new com.oficina.cliente.Cliente(
                         rs.getString("nome"),
                         rs.getString("cliente_cpf"),
                         rs.getString("telefone")

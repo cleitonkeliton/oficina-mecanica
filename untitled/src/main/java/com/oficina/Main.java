@@ -1,7 +1,7 @@
 package com.oficina;
 
 import com.oficina.database.ClienteDAO;
-import veiculo.Veiculo;
+import com.oficina.veiculo.Veiculo;
 
 public class Main {
     public static void main(String[] args) {
