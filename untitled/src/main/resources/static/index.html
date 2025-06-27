@@ -1,0 +1,133 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <title>Clientes da Oficina</title>
+    <style>
+        body {
+          font-family: Arial, sans-serif;
+          margin: 2rem;
+        }
+        input {
+          margin: 0.5rem;
+        }
+        button {
+          margin-left: 0.5rem;
+        }
+    </style>
+</head>
+<body>
+<h1>Clientes da Oficina</h1>
+
+<h2 id="form-title">Adicionar Cliente</h2>
+<input type="text" id="nome" placeholder="Nome">
+<input type="text" id="telefone" placeholder="Telefone">
+<button onclick="adicionarCliente()" id="btn-salvar">Adicionar</button>
+
+<h2>Lista de Clientes</h2>
+<ul id="lista-clientes"></ul>
+
+<script>
+    const apiUrl = 'http://localhost:8080/api/clientes';
+    let clienteEditandoId = null;
+
+    function listarClientes() {
+      fetch(apiUrl)
+        .then(res => res.json())
+        .then(clientes => {
+          const lista = document.getElementById("lista-clientes");
+          lista.innerHTML = "";
+          clientes.forEach(cliente => {
+            const li = document.createElement("li");
+            li.textContent = `${cliente.nome} (${cliente.telefone})`;
+
+            const btnEditar = document.createElement("button");
+            btnEditar.textContent = "Editar";
+            btnEditar.onclick = () => {
+              document.getElementById("nome").value = cliente.nome;
+              document.getElementById("telefone").value = cliente.telefone;
+              clienteEditandoId = cliente.id;
+              document.getElementById("btn-salvar").textContent = "Atualizar";
+              document.getElementById("form-title").textContent = "Editar Cliente";
+            };
+
+            const btnDeletar = document.createElement("button");
+            btnDeletar.textContent = "Deletar";
+            btnDeletar.onclick = () => deletarCliente(cliente.id);
+
+            li.appendChild(btnEditar);
+            li.appendChild(btnDeletar);
+            lista.appendChild(li);
+          });
+        })
+        .catch(err => console.error("Erro ao listar clientes:", err));
+    }
+
+    function adicionarCliente() {
+      const nome = document.getElementById("nome").value;
+      const telefone = document.getElementById("telefone").value;
+
+      if (!nome || !telefone) {
+        alert("Preencha todos os campos!");
+        return;
+      }
+
+      const cliente = { nome, telefone };
+
+      if (clienteEditandoId) {
+        fetch(`${apiUrl}/${clienteEditandoId}`, {
+          method: "PUT",
+          headers: {
+            "Content-Type": "application/json"
+          },
+          body: JSON.stringify(cliente)
+        }).then(res => {
+          if (res.ok) {
+            resetarFormulario();
+            listarClientes();
+          } else {
+            alert("Erro ao atualizar cliente.");
+          }
+        });
+      } else {
+        fetch(apiUrl, {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json"
+          },
+          body: JSON.stringify(cliente)
+        }).then(res => {
+          if (res.ok) {
+            resetarFormulario();
+            listarClientes();
+          } else {
+            alert("Erro ao adicionar cliente.");
+          }
+        });
+      }
+    }
+
+    function deletarCliente(id) {
+      fetch(`${apiUrl}/${id}`, {
+        method: "DELETE"
+      }).then(res => {
+        if (res.ok) {
+          listarClientes();
+        } else {
+          alert("Erro ao deletar cliente.");
+        }
+      });
+    }
+
+    function resetarFormulario() {
+      clienteEditandoId = null;
+      document.getElementById("nome").value = "";
+      document.getElementById("telefone").value = "";
+      document.getElementById("btn-salvar").textContent = "Adicionar";
+      document.getElementById("form-title").textContent = "Adicionar Cliente";
+    }
+
+    listarClientes();
+</script>
+</body>
+</html>

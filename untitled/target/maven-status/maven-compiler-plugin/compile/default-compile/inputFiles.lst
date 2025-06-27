@@ -1,0 +1,16 @@
+/home/valdevino/GitHub/JAVA/oficina-mecanica/untitled/src/main/java/com/oficina/database/VeiculoDAO.java
+/home/valdevino/GitHub/JAVA/oficina-mecanica/untitled/src/main/java/com/oficina/api/OficinaApiApplication.java
+/home/valdevino/GitHub/JAVA/oficina-mecanica/untitled/src/main/java/com/oficina/api/repository/ClienteRepository.java
+/home/valdevino/GitHub/JAVA/oficina-mecanica/untitled/src/main/java/com/oficina/database/ClienteDAO.java
+/home/valdevino/GitHub/JAVA/oficina-mecanica/untitled/src/main/java/com/oficina/api/controller/ClienteController.java
+/home/valdevino/GitHub/JAVA/oficina-mecanica/untitled/src/main/java/com/oficina/Main.java
+/home/valdevino/GitHub/JAVA/oficina-mecanica/untitled/src/main/java/com/oficina/cliente/Cliente.java
+/home/valdevino/GitHub/JAVA/oficina-mecanica/untitled/src/main/java/com/oficina/api/service/ClienteService.java
+/home/valdevino/GitHub/JAVA/oficina-mecanica/untitled/src/main/java/com/oficina/oficina/Oficina.java
+/home/valdevino/GitHub/JAVA/oficina-mecanica/untitled/src/main/java/com/oficina/api/model/Cliente.java
+/home/valdevino/GitHub/JAVA/oficina-mecanica/untitled/src/main/java/com/oficina/veiculo/Veiculo.java
+/home/valdevino/GitHub/JAVA/oficina-mecanica/untitled/src/main/java/com/oficina/servico/ServicoMecanico.java
+/home/valdevino/GitHub/JAVA/oficina-mecanica/untitled/src/main/java/com/oficina/database/DatabaseConnection.java
+/home/valdevino/GitHub/JAVA/oficina-mecanica/untitled/src/main/java/com/oficina/servico/OrdemDeSv.java
+/home/valdevino/GitHub/JAVA/oficina-mecanica/untitled/src/main/java/com/oficina/servico/Servico.java
+/home/valdevino/GitHub/JAVA/oficina-mecanica/untitled/src/main/java/com/oficina/database/OrdemDeSvDAO.java

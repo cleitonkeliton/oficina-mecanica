@@ -1,0 +1,125 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <title>Veículos da Oficina</title>
+    <style>
+        body {
+          font-family: Arial, sans-serif;
+          margin: 2rem;
+        }
+        input, select {
+          margin: 0.5rem;
+        }
+        button {
+          margin-left: 0.5rem;
+        }
+    </style>
+</head>
+<body>
+<h1>Veículos da Oficina</h1>
+
+<h2>Adicionar Veículo</h2>
+<input type="text" id="marca" placeholder="Marca">
+<input type="text" id="modelo" placeholder="Modelo">
+<input type="text" id="placa" placeholder="Placa">
+<select id="clienteId"></select>
+<button onclick="adicionarVeiculo()">Adicionar</button>
+
+<h2>Lista de Veículos</h2>
+<ul id="lista-veiculos"></ul>
+
+<script>
+    const baseUrl = 'http://localhost:8080/api';
+    const veiculoUrl = `${baseUrl}/veiculos`;
+    const clienteUrl = `${baseUrl}/clientes`;
+
+    function carregarClientes() {
+      fetch(clienteUrl)
+        .then(res => res.json())
+        .then(clientes => {
+          const select = document.getElementById("clienteId");
+          select.innerHTML = "";
+          clientes.forEach(cliente => {
+            const option = document.createElement("option");
+            option.value = cliente.id;
+            option.textContent = cliente.nome;
+            select.appendChild(option);
+          });
+        });
+    }
+
+    function listarVeiculos() {
+      fetch(veiculoUrl)
+        .then(res => res.json())
+        .then(veiculos => {
+          const lista = document.getElementById("lista-veiculos");
+          lista.innerHTML = "";
+          veiculos.forEach(veiculo => {
+            const li = document.createElement("li");
+            li.textContent = `${veiculo.marca} ${veiculo.modelo} - Placa: ${veiculo.placa} (Cliente ID: ${veiculo.cliente.id})`;
+
+            const btnDeletar = document.createElement("button");
+            btnDeletar.textContent = "Deletar";
+            btnDeletar.onclick = () => deletarVeiculo(veiculo.id);
+
+            li.appendChild(btnDeletar);
+            lista.appendChild(li);
+          });
+        });
+    }
+
+    function adicionarVeiculo() {
+      const marca = document.getElementById("marca").value;
+      const modelo = document.getElementById("modelo").value;
+      const placa = document.getElementById("placa").value;
+      const clienteId = document.getElementById("clienteId").value;
+
+      if (!marca || !modelo || !placa || !clienteId) {
+        alert("Preencha todos os campos!");
+        return;
+      }
+
+      const veiculo = {
+        marca,
+        modelo,
+        placa,
+        cliente: { id: clienteId }
+      };
+
+      fetch(veiculoUrl, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json"
+        },
+        body: JSON.stringify(veiculo)
+      }).then(res => {
+        if (res.ok) {
+          document.getElementById("marca").value = "";
+          document.getElementById("modelo").value = "";
+          document.getElementById("placa").value = "";
+          listarVeiculos();
+        } else {
+          alert("Erro ao adicionar veículo.");
+        }
+      });
+    }
+
+    function deletarVeiculo(id) {
+      fetch(`${veiculoUrl}/${id}`, {
+        method: "DELETE"
+      }).then(res => {
+        if (res.ok) {
+          listarVeiculos();
+        } else {
+          alert("Erro ao deletar veículo.");
+        }
+      });
+    }
+
+    // Inicializa a página
+    carregarClientes();
+    listarVeiculos();
+</script>
+</body>
+</html>

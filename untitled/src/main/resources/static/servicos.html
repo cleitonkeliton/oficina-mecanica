@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <title>Serviços da Oficina</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 2rem;
+        }
+        input {
+            margin: 0.5rem;
+        }
+        button {
+            margin-left: 0.5rem;
+        }
+    </style>
+</head>
+<body>
+<h1>Serviços da Oficina</h1>
+
+<h2>Adicionar Serviço</h2>
+<input type="text" id="descricao" placeholder="Descrição">
+<input type="number" id="preco" placeholder="Preço (R$)" step="0.01">
+<button onclick="adicionarServico()">Adicionar</button>
+
+<h2>Lista de Serviços</h2>
+<ul id="lista-servicos"></ul>
+
+<script>
+    const apiUrl = 'http://localhost:8080/api/servicos';
+
+    function listarServicos() {
+        fetch(apiUrl)
+            .then(res => res.json())
+            .then(servicos => {
+                const lista = document.getElementById("lista-servicos");
+                lista.innerHTML = "";
+                servicos.forEach(servico => {
+                    const li = document.createElement("li");
+                    li.textContent = `${servico.descricao} - R$ ${servico.preco.toFixed(2)}`;
+
+                    const btnDeletar = document.createElement("button");
+                    btnDeletar.textContent = "Deletar";
+                    btnDeletar.onclick = () => deletarServico(servico.id);
+
+                    li.appendChild(btnDeletar);
+                    lista.appendChild(li);
+                });
+            })
+            .catch(err => console.error("Erro ao listar serviços:", err));
+    }
+
+    function adicionarServico() {
+        const descricao = document.getElementById("descricao").value;
+        const preco = parseFloat(document.getElementById("preco").value);
+
+        if (!descricao || isNaN(preco)) {
+            alert("Preencha todos os campos!");
+            return;
+        }
+
+        const servico = { descricao, preco };
+
+        fetch(apiUrl, {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json"
+            },
+            body: JSON.stringify(servico)
+        })
+            .then(res => {
+                if (res.ok) {
+                    document.getElementById("descricao").value = "";
+                    document.getElementById("preco").value = "";
+                    listarServicos();
+                } else {
+                    alert("Erro ao adicionar serviço.");
+                }
+            });
+    }
+
+    function deletarServico(id) {
+        fetch(`${apiUrl}/${id}`, {
+            method: "DELETE"
+        })
+            .then(res => {
+                if (res.ok) {
+                    listarServicos();
+                } else {
+                    alert("Erro ao deletar serviço.");
+                }
+            });
+    }
+
+    // Carrega os serviços ao abrir a página
+    listarServicos();
+</script>
+</body>
+</html>

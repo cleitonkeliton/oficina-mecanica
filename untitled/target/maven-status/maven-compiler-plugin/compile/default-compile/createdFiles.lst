@@ -1,0 +1,16 @@
+com/oficina/cliente/Cliente.class
+com/oficina/database/VeiculoDAO.class
+com/oficina/api/repository/ClienteRepository.class
+com/oficina/database/DatabaseConnection.class
+com/oficina/api/service/ClienteService.class
+com/oficina/servico/OrdemDeSv.class
+com/oficina/database/ClienteDAO.class
+com/oficina/api/controller/ClienteController.class
+com/oficina/Main.class
+com/oficina/api/model/Cliente.class
+com/oficina/servico/Servico.class
+com/oficina/api/OficinaApiApplication.class
+com/oficina/veiculo/Veiculo.class
+com/oficina/servico/ServicoMecanico.class
+com/oficina/database/OrdemDeSvDAO.class
+com/oficina/oficina/Oficina.class

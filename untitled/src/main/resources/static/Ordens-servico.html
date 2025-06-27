@@ -1,0 +1,150 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <title>Ordens de Serviço</title>
+    <style>
+        body {
+          font-family: Arial, sans-serif;
+          margin: 2rem;
+        }
+        input, select {
+          margin: 0.5rem;
+        }
+        button {
+          margin: 1rem 0;
+        }
+    </style>
+</head>
+<body>
+<h1>Ordens de Serviço</h1>
+
+<h2>Criar Nova Ordem</h2>
+<label for="cliente">Cliente:</label>
+<select id="cliente"></select>
+
+<label for="veiculo">Veículo:</label>
+<select id="veiculo"></select>
+
+<label for="servicos">Serviços:</label>
+<select id="servicos" multiple></select>
+
+<br>
+<label for="observacoes">Observações:</label><br>
+<textarea id="observacoes" rows="3" cols="50"></textarea>
+
+<br>
+<label for="status">Status:</label>
+<input type="text" id="status" placeholder="Ex: Em andamento">
+
+<br>
+<button onclick="criarOrdem()">Criar Ordem</button>
+
+<h2>Ordens Criadas</h2>
+<ul id="lista-ordens"></ul>
+
+<script>
+    const apiClientes = 'http://localhost:8080/api/clientes';
+    const apiVeiculos = 'http://localhost:8080/api/veiculos';
+    const apiServicos = 'http://localhost:8080/api/servicos';
+    const apiOrdens = 'http://localhost:8080/api/ordens-servico';
+
+    async function carregarDados() {
+      const [clientes, veiculos, servicos] = await Promise.all([
+        fetch(apiClientes).then(res => res.json()),
+        fetch(apiVeiculos).then(res => res.json()),
+        fetch(apiServicos).then(res => res.json())
+      ]);
+
+      const clienteSelect = document.getElementById("cliente");
+      clientes.forEach(c => {
+        const opt = document.createElement("option");
+        opt.value = c.id;
+        opt.textContent = c.nome;
+        clienteSelect.appendChild(opt);
+      });
+
+      const veiculoSelect = document.getElementById("veiculo");
+      veiculos.forEach(v => {
+        const opt = document.createElement("option");
+        opt.value = v.id;
+        opt.textContent = `${v.modelo} (${v.placa})`;
+        veiculoSelect.appendChild(opt);
+      });
+
+      const servicoSelect = document.getElementById("servicos");
+      servicos.forEach(s => {
+        const opt = document.createElement("option");
+        opt.value = s.id;
+        opt.textContent = `${s.descricao} - R$${s.preco.toFixed(2)}`;
+        servicoSelect.appendChild(opt);
+      });
+
+      listarOrdens();
+    }
+
+    function criarOrdem() {
+      const clienteId = document.getElementById("cliente").value;
+      const veiculoId = document.getElementById("veiculo").value;
+      const servicoSelect = document.getElementById("servicos");
+      const servicoIds = Array.from(servicoSelect.selectedOptions).map(opt => opt.value);
+      const observacoes = document.getElementById("observacoes").value;
+      const status = document.getElementById("status").value;
+
+      if (!clienteId || !veiculoId || servicoIds.length === 0 || !status) {
+        alert("Preencha todos os campos obrigatórios.");
+        return;
+      }
+
+      const ordem = {
+        cliente: { id: clienteId },
+        veiculo: { id: veiculoId },
+        servicos: servicoIds.map(id => ({ id: id })),
+        observacoes,
+        status
+      };
+
+      fetch(apiOrdens, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json"
+        },
+        body: JSON.stringify(ordem)
+      })
+      .then(res => {
+        if (res.ok) {
+          alert("Ordem criada com sucesso!");
+          listarOrdens();
+        } else {
+          alert("Erro ao criar ordem.");
+        }
+      });
+    }
+
+    function listarOrdens() {
+      fetch(apiOrdens)
+        .then(res => res.json())
+        .then(ordens => {
+          const lista = document.getElementById("lista-ordens");
+          lista.innerHTML = "";
+
+          ordens.forEach(ordem => {
+            const li = document.createElement("li");
+            li.innerHTML = `
+              <strong>ID:</strong> ${ordem.id}<br>
+              <strong>Status:</strong> ${ordem.status}<br>
+              <strong>Data:</strong> ${ordem.dataCriacao}<br>
+              <strong>Valor Total:</strong> R$${ordem.valorTotal?.toFixed(2) || 0}<br>
+              <strong>Observações:</strong> ${ordem.observacoes || "Nenhuma"}<br>
+              <hr>
+            `;
+            lista.appendChild(li);
+          });
+        });
+    }
+
+    // Inicializa ao carregar a página
+    carregarDados();
+</script>
+</body>
+</html>
