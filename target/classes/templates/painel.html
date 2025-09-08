@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Painel da Oficina</title>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 20px; }
+        h1 { text-align: center; }
+        section { margin-bottom: 40px; }
+        table { border-collapse: collapse; width: 100%; margin-top: 10px; }
+        table, th, td { border: 1px solid #ddd; padding: 8px; }
+        th { background: #f4f4f4; }
+    </style>
+</head>
+<body>
+<h1>Painel da Oficina Mecânica</h1>
+
+<!-- Clientes -->
+<section>
+    <h2>Clientes</h2>
+    <table>
+        <thead>
+        <tr>
+            <th>ID</th>
+            <th>Nome</th>
+            <th>Email</th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr th:each="cliente : ${clientes}">
+            <td th:text="${cliente.id}"></td>
+            <td th:text="${cliente.nome}"></td>
+            <td th:text="${cliente.email}"></td>
+        </tr>
+        </tbody>
+    </table>
+</section>
+
+<!-- Veículos -->
+<section>
+    <h2>Veículos</h2>
+    <table>
+        <thead>
+        <tr>
+            <th>ID</th>
+            <th>Placa</th>
+            <th>Modelo</th>
+            <th>Dono</th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr th:each="veiculo : ${veiculos}">
+            <td th:text="${veiculo.id}"></td>
+            <td th:text="${veiculo.placa}"></td>
+            <td th:text="${veiculo.modelo}"></td>
+            <td th:text="${veiculo.cliente.nome}"></td>
+        </tr>
+        </tbody>
+    </table>
+</section>
+
+<!-- Serviços -->
+<section>
+    <h2>Serviços</h2>
+    <table>
+        <thead>
+        <tr>
+            <th>ID</th>
+            <th>Descrição</th>
+            <th>Preço</th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr th:each="servico : ${servicos}">
+            <td th:text="${servico.id}"></td>
+            <td th:text="${servico.descricao}"></td>
+            <td th:text="${servico.preco}"></td>
+        </tr>
+        </tbody>
+    </table>
+</section>
+
+<!-- Ordens de Serviço -->
+<section>
+    <h2>Ordens de Serviço</h2>
+    <table>
+        <thead>
+        <tr>
+            <th>ID</th>
+            <th>Cliente</th>
+            <th>Veículo</th>
+            <th>Serviço</th>
+            <th>Status</th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr th:each="ordem : ${ordens}">
+            <td th:text="${ordem.id}"></td>
+            <td th:text="${ordem.cliente.nome}"></td>
+            <td th:text="${ordem.veiculo.modelo}"></td>
+            <td th:text="${ordem.servico.descricao}"></td>
+            <td th:text="${ordem.status}"></td>
+        </tr>
+        </tbody>
+    </table>
+</section>
+</body>
+</html>
