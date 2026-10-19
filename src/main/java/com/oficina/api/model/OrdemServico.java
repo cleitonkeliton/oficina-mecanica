@@ -3,10 +3,20 @@ package com.oficina.api.model;
 import jakarta.persistence.*;
 import java.math.BigDecimal;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.List;
 
 @Entity
 public class OrdemServico {
+
+    // Etapas exibidas ao cliente, na ordem em que acontecem
+    public static final List<String> STATUS = List.of(
+            "Aguardando avaliação",
+            "Em orçamento",
+            "Aguardando aprovação",
+            "Em serviço",
+            "Pronto para retirada",
+            "Entregue");
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -31,8 +41,31 @@ public class OrdemServico {
     private LocalDate dataCriacao;
     private BigDecimal valorTotal;
 
+    private LocalDate previsaoEntrega;
+
+    private LocalDateTime dataAtualizacao;
+
     public OrdemServico() {
         this.dataCriacao = LocalDate.now();
+    }
+
+    @PrePersist
+    @PreUpdate
+    public void antesDeSalvar() {
+        if (status == null) {
+            status = STATUS.get(0);
+        }
+        dataAtualizacao = LocalDateTime.now();
+    }
+
+    // Última etapa: o carro já foi devolvido e a ordem vai para o histórico do cliente
+    public boolean isConcluida() {
+        return STATUS.get(STATUS.size() - 1).equals(status);
+    }
+
+    // Posição do status atual na lista STATUS (-1 se for um status fora da lista)
+    public int getEtapaAtual() {
+        return STATUS.indexOf(status);
     }
 
     // Getters e Setters
@@ -59,4 +92,10 @@ public class OrdemServico {
 
     public BigDecimal getValorTotal() { return valorTotal; }
     public void setValorTotal(BigDecimal valorTotal) { this.valorTotal = valorTotal; }
+
+    public LocalDate getPrevisaoEntrega() { return previsaoEntrega; }
+    public void setPrevisaoEntrega(LocalDate previsaoEntrega) { this.previsaoEntrega = previsaoEntrega; }
+
+    public LocalDateTime getDataAtualizacao() { return dataAtualizacao; }
+    public void setDataAtualizacao(LocalDateTime dataAtualizacao) { this.dataAtualizacao = dataAtualizacao; }
 }

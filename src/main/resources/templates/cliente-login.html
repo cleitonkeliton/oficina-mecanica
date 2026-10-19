@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html lang="pt-BR" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title th:text="'Área do cliente · ' + ${info.nome}">Área do cliente</title>
+    <link rel="stylesheet" th:href="@{/css/site.css}">
+</head>
+<body>
+<header class="topo">
+    <div class="container">
+        <a class="marca" th:href="@{/}" th:text="${info.nome}">Oficina Mecânica</a>
+        <nav>
+            <a th:href="@{/#servicos}">Serviços</a>
+            <a th:href="@{/#contato}">Contato</a>
+        </nav>
+    </div>
+</header>
+
+<div class="container login">
+    <form class="painel" th:action="@{/cliente/entrar}" method="post">
+        <h2 style="margin:0">Área do cliente</h2>
+        <p style="margin:4px 0 0;color:var(--cor-suave)">Acompanhe a situação do seu veículo e os serviços feitos.</p>
+        <div class="alerta erro" th:if="${erro}" th:text="${erro}"></div>
+        <div>
+            <label for="placa">Placa do veículo</label>
+            <input type="text" id="placa" name="placa" th:value="${placa}" placeholder="ABC1D23" autofocus required>
+        </div>
+        <div>
+            <label for="codigo">Código de acesso</label>
+            <input type="text" id="codigo" name="codigo" placeholder="Recebido no cadastro" required>
+        </div>
+        <div class="acoes">
+            <button class="botao" type="submit">Entrar</button>
+            <a th:href="@{/}">Voltar ao site</a>
+        </div>
+        <p style="color:var(--cor-suave);font-size:.9rem">
+            O código de acesso é entregue pela oficina quando você e seu carro são cadastrados.
+        </p>
+    </form>
+</div>
+</body>
+</html>

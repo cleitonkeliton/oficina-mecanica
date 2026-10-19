@@ -25,6 +25,12 @@ public class SiteController {
         return "index";
     }
 
+    // Endereço antigo/alternativo da área do cliente
+    @GetMapping("/acompanhar")
+    public String acompanhar() {
+        return "redirect:/cliente";
+    }
+
     @GetMapping("/login")
     public String login(Model model) {
         model.addAttribute("info", informacaoService.obter());

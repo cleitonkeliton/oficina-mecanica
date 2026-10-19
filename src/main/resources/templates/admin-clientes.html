@@ -1,0 +1,139 @@
+<!DOCTYPE html>
+<html lang="pt-BR" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Clientes · Administração</title>
+    <link rel="stylesheet" th:href="@{/css/site.css}">
+</head>
+<body class="admin">
+
+<header class="topo">
+    <div class="container">
+        <a class="marca" th:href="@{/admin}">Administração</a>
+        <nav class="acoes">
+            <a th:href="@{/admin}">Site e serviços</a>
+            <a th:href="@{/admin/clientes}">Clientes</a>
+            <a th:href="@{/admin/ordens}">Ordens de serviço</a>
+            <a th:href="@{/}" target="_blank">Ver site</a>
+            <form class="inline" th:action="@{/logout}" method="post">
+                <button class="botao pequeno secundario" type="submit">Sair</button>
+            </form>
+        </nav>
+    </div>
+</header>
+
+<div class="container">
+    <div class="alerta ok" th:if="${mensagem}" th:text="${mensagem}"></div>
+    <div class="alerta erro" th:if="${erro}" th:text="${erro}"></div>
+
+    <section id="form-cliente">
+        <h2 th:text="${cliente.id == null} ? 'Cadastrar cliente e veículo' : 'Editar cliente'">Cadastrar cliente e veículo</h2>
+        <form class="painel formulario" th:action="@{/admin/clientes}" th:object="${cliente}" method="post">
+            <input type="hidden" th:field="*{id}">
+            <div>
+                <label for="nome">Nome</label>
+                <input type="text" th:field="*{nome}" required>
+            </div>
+            <div>
+                <label for="telefone">Telefone / WhatsApp</label>
+                <input type="text" th:field="*{telefone}" placeholder="(11) 99999-8888">
+            </div>
+            <div>
+                <label for="email">E-mail</label>
+                <input type="email" th:field="*{email}">
+            </div>
+            <div>
+                <label for="cpf">CPF</label>
+                <input type="text" th:field="*{cpf}">
+            </div>
+            <th:block th:if="${cliente.id == null}">
+                <div>
+                    <label for="placa">Placa do veículo</label>
+                    <input type="text" th:field="*{placa}" placeholder="ABC1D23" required>
+                </div>
+                <div>
+                    <label for="marca">Marca</label>
+                    <input type="text" th:field="*{marca}">
+                </div>
+                <div>
+                    <label for="modelo">Modelo</label>
+                    <input type="text" th:field="*{modelo}">
+                </div>
+            </th:block>
+            <div class="inteiro acoes">
+                <button class="botao" type="submit" th:text="${cliente.id == null} ? 'Cadastrar' : 'Salvar alterações'">Cadastrar</button>
+                <a class="botao secundario" th:if="${cliente.id != null}" th:href="@{/admin/clientes}">Cancelar</a>
+            </div>
+        </form>
+    </section>
+
+    <section>
+        <h2>Clientes</h2>
+        <p style="color:var(--cor-suave);margin-top:-12px">
+            O cliente entra na Área do cliente com a placa e o código de acesso. Envie o link para ele entrar direto.
+        </p>
+        <div class="painel tabela-wrap">
+            <table>
+                <thead>
+                <tr>
+                    <th>Cliente</th>
+                    <th>Veículos</th>
+                    <th>Código de acesso</th>
+                    <th></th>
+                </tr>
+                </thead>
+                <tbody>
+                <tr th:each="c : ${clientes}"
+                    th:with="veics=${veiculosPorCliente.get(c.id)},
+                             placa1=${veics != null and !veics.isEmpty()} ? ${veics[0].placa} : '',
+                             link=${baseUrl} + '/cliente/entrar?placa=' + ${#uris.escapeQueryParam(placa1)} + '&codigo=' + ${c.codigoAcesso}">
+                    <td>
+                        <strong th:text="${c.nome}"></strong><br>
+                        <small th:text="${c.telefone}"></small>
+                        <small th:if="${c.email}" th:text="' · ' + ${c.email}"></small>
+                    </td>
+                    <td>
+                        <div th:each="v : ${veics}">
+                            <strong th:text="${v.placa}"></strong>
+                            <small th:text="${#strings.trim((v.marca ?: '') + ' ' + (v.modelo ?: ''))}"></small>
+                        </div>
+                        <details style="margin-top:6px">
+                            <summary style="cursor:pointer;font-size:.9rem">Adicionar veículo</summary>
+                            <form th:action="@{/admin/clientes/{id}/veiculos(id=${c.id})}" method="post" style="margin-top:6px">
+                                <input type="text" name="placa" placeholder="Placa" required style="margin-bottom:4px">
+                                <input type="text" name="marca" placeholder="Marca" style="margin-bottom:4px">
+                                <input type="text" name="modelo" placeholder="Modelo" style="margin-bottom:4px">
+                                <button class="botao pequeno" type="submit">Adicionar</button>
+                            </form>
+                        </details>
+                    </td>
+                    <td>
+                        <span class="codigo" th:text="${c.codigoAcesso}"></span><br>
+                        <small th:if="${!placa1.isEmpty()}"><a th:href="${link}" target="_blank">Link de acesso</a></small>
+                        <small th:if="${c.whatsappNumero != null and !placa1.isEmpty()}"> ·
+                            <a target="_blank" rel="noopener"
+                               th:href="'https://wa.me/' + ${c.whatsappNumero} + '?text=' + ${#uris.escapeQueryParam('Olá! Acompanhe seu veículo e os serviços feitos na oficina: ' + link)}">Enviar no WhatsApp</a>
+                        </small>
+                    </td>
+                    <td>
+                        <div class="acoes">
+                            <a class="botao pequeno secundario" th:href="@{/admin/clientes/{id}/editar(id=${c.id})}">Editar</a>
+                            <form class="inline" th:action="@{/admin/clientes/{id}/novo-codigo(id=${c.id})}" method="post"
+                                  onsubmit="return confirm('Gerar um novo código? O código atual deixará de funcionar.');">
+                                <button class="botao pequeno secundario" type="submit">Novo código</button>
+                            </form>
+                        </div>
+                    </td>
+                </tr>
+                <tr th:if="${clientes.isEmpty()}">
+                    <td colspan="4" class="vazio">Nenhum cliente cadastrado ainda.</td>
+                </tr>
+                </tbody>
+            </table>
+        </div>
+    </section>
+</div>
+
+</body>
+</html>

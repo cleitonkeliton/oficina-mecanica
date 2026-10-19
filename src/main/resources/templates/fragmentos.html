@@ -1,0 +1,21 @@
+<!DOCTYPE html>
+<html lang="pt-BR" xmlns:th="http://www.thymeleaf.org">
+<body>
+
+<!-- Lista de serviços de uma ordem com o total -->
+<th:block th:fragment="tabela-servicos(o)">
+    <table th:if="${o.servicos != null and !o.servicos.isEmpty()}" style="margin-top:12px">
+        <tr th:each="s : ${o.servicos}">
+            <td th:text="${s.nome != null ? s.nome : s.descricao}"></td>
+            <td style="text-align:right"
+                th:text="${s.preco != null} ? 'R$ ' + ${#numbers.formatDecimal(s.preco, 1, 'POINT', 2, 'COMMA')} : 'Sob consulta'"></td>
+        </tr>
+        <tr th:if="${o.valorTotal != null}">
+            <th>Total</th>
+            <th style="text-align:right" th:text="'R$ ' + ${#numbers.formatDecimal(o.valorTotal, 1, 'POINT', 2, 'COMMA')}"></th>
+        </tr>
+    </table>
+</th:block>
+
+</body>
+</html>

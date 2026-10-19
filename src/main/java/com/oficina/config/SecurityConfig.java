@@ -20,7 +20,9 @@ public class SecurityConfig {
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
         http
                 .authorizeHttpRequests(auth -> auth
-                        .requestMatchers("/admin/**").authenticated()
+                        .requestMatchers("/admin/**", "/painel").authenticated()
+                        // Dados de clientes, veículos e ordens (inclui os códigos de acompanhamento) só com login
+                        .requestMatchers("/api/clientes/**", "/api/veiculos/**", "/api/ordens-servico/**").authenticated()
                         // Alterar serviços pela API também exige login, senão o site poderia ser editado sem senha
                         .requestMatchers(HttpMethod.POST, "/api/servicos/**").authenticated()
                         .requestMatchers(HttpMethod.PUT, "/api/servicos/**").authenticated()

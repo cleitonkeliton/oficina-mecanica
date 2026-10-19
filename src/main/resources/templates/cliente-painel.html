@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html lang="pt-BR" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title th:text="'Área do cliente · ' + ${info.nome}">Área do cliente</title>
+    <link rel="stylesheet" th:href="@{/css/site.css}">
+</head>
+<body>
+<header class="topo">
+    <div class="container">
+        <a class="marca" th:href="@{/}" th:text="${info.nome}">Oficina Mecânica</a>
+        <nav class="acoes">
+            <a th:href="@{/#contato}">Contato</a>
+            <form class="inline" th:action="@{/cliente/sair}" method="post">
+                <button class="botao pequeno secundario" type="submit">Sair</button>
+            </form>
+        </nav>
+    </div>
+</header>
+
+<section>
+    <div class="container acompanhar">
+        <h2 th:text="'Olá, ' + ${cliente.nome}">Olá</h2>
+
+        <div class="painel">
+            <span style="color:var(--cor-suave)">Seus veículos</span>
+            <div class="dados">
+                <div th:each="v : ${veiculos}">
+                    <strong th:text="${#strings.trim((v.marca ?: '') + ' ' + (v.modelo ?: ''))}"></strong>
+                    <span th:text="${v.placa}"></span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Serviços em andamento -->
+        <h3 style="margin-top:32px">Em andamento</h3>
+        <p class="vazio" th:if="${emAndamento.isEmpty()}">Nenhum veículo seu está na oficina agora.</p>
+        <div class="painel" th:each="ordem : ${emAndamento}" style="margin-bottom:20px">
+            <span style="color:var(--cor-suave)"
+                  th:text="${ordem.veiculo?.placa} + ' · ' + ${#strings.trim((ordem.veiculo?.marca ?: '') + ' ' + (ordem.veiculo?.modelo ?: ''))}"></span>
+            <p class="status-grande" th:text="${ordem.status}">Em serviço</p>
+
+            <div class="dados">
+                <div th:if="${ordem.dataCriacao}">
+                    <span>Entrada</span>
+                    <strong th:text="${#temporals.format(ordem.dataCriacao, 'dd/MM/yyyy')}"></strong>
+                </div>
+                <div th:if="${ordem.previsaoEntrega}">
+                    <span>Previsão de entrega</span>
+                    <strong th:text="${#temporals.format(ordem.previsaoEntrega, 'dd/MM/yyyy')}"></strong>
+                </div>
+                <div th:if="${ordem.dataAtualizacao}">
+                    <span>Última atualização</span>
+                    <strong th:text="${#temporals.format(ordem.dataAtualizacao, 'dd/MM/yyyy HH:mm')}"></strong>
+                </div>
+            </div>
+
+            <ol class="linha-tempo" th:if="${ordem.etapaAtual >= 0}">
+                <li th:each="etapa, i : ${etapas}"
+                    th:classappend="${i.index < ordem.etapaAtual} ? 'feita' : (${i.index == ordem.etapaAtual} ? 'atual' : '')"
+                    th:text="${etapa}"></li>
+            </ol>
+
+            <div th:if="${ordem.observacoes}">
+                <span style="color:var(--cor-suave)">Observações da oficina</span>
+                <p style="white-space:pre-line;margin-top:4px" th:text="${ordem.observacoes}"></p>
+            </div>
+
+            <div th:replace="~{fragmentos :: tabela-servicos(${ordem})}"></div>
+        </div>
+
+        <!-- Histórico -->
+        <h3 style="margin-top:32px">Serviços realizados</h3>
+        <p class="vazio" th:if="${historico.isEmpty()}">Ainda não há serviços concluídos.</p>
+        <div class="painel" th:each="ordem : ${historico}" style="margin-bottom:20px">
+            <strong th:text="${#temporals.format(ordem.dataCriacao, 'dd/MM/yyyy')}"></strong>
+            <span style="color:var(--cor-suave)"
+                  th:text="' · ' + ${ordem.veiculo?.placa} + ' ' + ${#strings.trim((ordem.veiculo?.marca ?: '') + ' ' + (ordem.veiculo?.modelo ?: ''))}"></span>
+            <p th:if="${ordem.observacoes}" style="white-space:pre-line;color:var(--cor-suave)" th:text="${ordem.observacoes}"></p>
+            <div th:replace="~{fragmentos :: tabela-servicos(${ordem})}"></div>
+        </div>
+    </div>
+</section>
+
+<footer class="rodape">
+    <div class="container">
+        <span th:text="${info.nome}">Oficina Mecânica</span> · <a th:href="@{/}">Voltar ao site</a>
+    </div>
+</footer>
+</body>
+</html>

@@ -99,3 +99,29 @@ th { background: #fafafa; }
     .hero h1 { font-size: 1.8rem; }
     .topo nav a { margin-left: 12px; }
 }
+
+/* Acompanhamento do veículo */
+.acompanhar { max-width: 760px; margin: 0 auto; }
+.acompanhar .painel + .painel { margin-top: 24px; }
+.linha-tempo { list-style: none; padding: 0; margin: 20px 0; }
+.linha-tempo li { position: relative; padding: 0 0 20px 36px; color: #999; }
+.linha-tempo li::before {
+    content: ""; position: absolute; left: 0; top: 2px; width: 20px; height: 20px;
+    border-radius: 50%; background: #fff; border: 3px solid #ccc;
+}
+.linha-tempo li::after {
+    content: ""; position: absolute; left: 10px; top: 24px; bottom: 0; width: 2px; background: #ddd; transform: translateX(-1px);
+}
+.linha-tempo li:last-child::after { display: none; }
+.linha-tempo li.feita { color: var(--cor-texto); }
+.linha-tempo li.feita::before { background: #1e7b3c; border-color: #1e7b3c; }
+.linha-tempo li.atual { color: var(--cor-texto); font-weight: 700; }
+.linha-tempo li.atual::before { background: var(--cor-primaria); border-color: var(--cor-primaria); }
+.status-grande { font-size: 1.6rem; font-weight: 700; color: var(--cor-primaria); margin: 4px 0 0; }
+.dados { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 12px; margin-top: 16px; }
+.dados div span { display: block; font-size: .85rem; color: var(--cor-suave); }
+.codigo { font-family: monospace; font-size: 1rem; letter-spacing: .08em; }
+.lista-checks { display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 6px; }
+.lista-checks label { font-weight: 400; }
+select { width: 100%; padding: 10px; border: 1px solid #ccc; border-radius: 6px; font: inherit; background: #fff; }
+input[type=date] { width: 100%; padding: 9px; border: 1px solid #ccc; border-radius: 6px; font: inherit; }

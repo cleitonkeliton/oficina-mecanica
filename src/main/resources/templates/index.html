@@ -15,6 +15,7 @@
             <a href="#servicos">Serviços</a>
             <a href="#sobre">Sobre</a>
             <a href="#contato">Contato</a>
+            <a th:href="@{/cliente}">Área do cliente</a>
         </nav>
     </div>
 </header>
@@ -25,6 +26,7 @@
         <p th:if="${info.slogan}" th:text="${info.slogan}">Slogan</p>
         <a class="botao" th:if="${info.whatsappLink}" th:href="${info.whatsappLink}" target="_blank" rel="noopener">Agende pelo WhatsApp</a>
         <a class="botao" th:unless="${info.whatsappLink}" href="#contato">Fale conosco</a>
+        <a class="botao secundario" th:href="@{/cliente}">Área do cliente</a>
     </div>
 </div>
 

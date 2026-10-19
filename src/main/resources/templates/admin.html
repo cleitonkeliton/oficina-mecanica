@@ -12,6 +12,9 @@
     <div class="container">
         <a class="marca" th:href="@{/admin}">Administração</a>
         <nav class="acoes">
+            <a th:href="@{/admin}">Site e serviços</a>
+            <a th:href="@{/admin/clientes}">Clientes</a>
+            <a th:href="@{/admin/ordens}">Ordens de serviço</a>
             <a th:href="@{/}" target="_blank">Ver site</a>
             <form class="inline" th:action="@{/logout}" method="post">
                 <button class="botao pequeno secundario" type="submit">Sair</button>

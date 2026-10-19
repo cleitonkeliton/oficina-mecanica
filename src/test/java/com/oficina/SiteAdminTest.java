@@ -2,6 +2,7 @@ package com.oficina;
 
 import com.oficina.api.model.Servico;
 import com.oficina.api.repository.InformacaoOficinaRepository;
+import com.oficina.api.repository.OrdemServicoRepository;
 import com.oficina.api.repository.ServicoRepository;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -36,8 +37,12 @@ class SiteAdminTest {
     @Autowired
     private InformacaoOficinaRepository informacaoRepository;
 
+    @Autowired
+    private OrdemServicoRepository ordemRepository;
+
     @BeforeEach
     void limpar() {
+        ordemRepository.deleteAll();
         servicoRepository.deleteAll();
         informacaoRepository.deleteAll();
     }
