@@ -1,0 +1,146 @@
+<!DOCTYPE html>
+<html lang="pt-BR" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Administração · Oficina</title>
+    <link rel="stylesheet" th:href="@{/css/site.css}">
+</head>
+<body class="admin">
+
+<header class="topo">
+    <div class="container">
+        <a class="marca" th:href="@{/admin}">Administração</a>
+        <nav class="acoes">
+            <a th:href="@{/}" target="_blank">Ver site</a>
+            <form class="inline" th:action="@{/logout}" method="post">
+                <button class="botao pequeno secundario" type="submit">Sair</button>
+            </form>
+        </nav>
+    </div>
+</header>
+
+<div class="container">
+    <div class="alerta ok" th:if="${mensagem}" th:text="${mensagem}"></div>
+    <div class="alerta erro" th:if="${erro}" th:text="${erro}"></div>
+
+    <!-- Serviços -->
+    <section>
+        <h2>Serviços</h2>
+        <div class="painel tabela-wrap">
+            <table>
+                <thead>
+                <tr>
+                    <th>Serviço</th>
+                    <th>Valor</th>
+                    <th>Tempo</th>
+                    <th>Site</th>
+                    <th></th>
+                </tr>
+                </thead>
+                <tbody>
+                <tr th:each="s : ${servicos}">
+                    <td>
+                        <strong th:text="${s.nome != null ? s.nome : s.descricao}"></strong><br>
+                        <small th:if="${s.nome != null}" th:text="${s.descricao}"></small>
+                    </td>
+                    <td th:text="${s.preco != null} ? 'R$ ' + ${#numbers.formatDecimal(s.preco, 1, 'POINT', 2, 'COMMA')} : 'Sob consulta'"></td>
+                    <td th:text="${s.tempoEstimado}"></td>
+                    <td>
+                        <span class="etiqueta" th:if="${s.visivel}">Visível</span>
+                        <span class="etiqueta off" th:unless="${s.visivel}">Oculto</span>
+                    </td>
+                    <td>
+                        <div class="acoes">
+                        <a class="botao pequeno secundario" th:href="@{/admin/servicos/{id}/editar(id=${s.id})}">Editar</a>
+                        <form class="inline" th:action="@{/admin/servicos/{id}/excluir(id=${s.id})}" method="post"
+                              onsubmit="return confirm('Excluir este serviço?');">
+                            <button class="botao pequeno perigo" type="submit">Excluir</button>
+                        </form>
+                        </div>
+                    </td>
+                </tr>
+                <tr th:if="${servicos.isEmpty()}">
+                    <td colspan="5" class="vazio">Nenhum serviço cadastrado ainda.</td>
+                </tr>
+                </tbody>
+            </table>
+        </div>
+    </section>
+
+    <!-- Formulário de serviço (novo ou edição) -->
+    <section id="form-servico">
+        <h2 th:text="${servico.id == null} ? 'Adicionar serviço' : 'Editar serviço'">Adicionar serviço</h2>
+        <form class="painel formulario" th:action="@{/admin/servicos}" th:object="${servico}" method="post">
+            <input type="hidden" th:field="*{id}">
+            <div>
+                <label for="nome">Nome</label>
+                <input type="text" th:field="*{nome}" placeholder="Ex.: Troca de óleo" required>
+            </div>
+            <div>
+                <label for="preco">Valor (R$)</label>
+                <input type="number" th:field="*{preco}" step="0.01" min="0" placeholder="Vazio = sob consulta">
+            </div>
+            <div>
+                <label for="tempoEstimado">Tempo estimado</label>
+                <input type="text" th:field="*{tempoEstimado}" placeholder="Ex.: 1 hora">
+            </div>
+            <div class="inteiro">
+                <label for="descricao">Descrição</label>
+                <textarea th:field="*{descricao}" placeholder="O que está incluso no serviço"></textarea>
+            </div>
+            <div class="inteiro">
+                <label><input type="checkbox" th:field="*{ativo}"> Exibir no site</label>
+            </div>
+            <div class="inteiro acoes">
+                <button class="botao" type="submit" th:text="${servico.id == null} ? 'Adicionar' : 'Salvar alterações'">Adicionar</button>
+                <a class="botao secundario" th:if="${servico.id != null}" th:href="@{/admin}">Cancelar</a>
+            </div>
+        </form>
+    </section>
+
+    <!-- Informações da oficina -->
+    <section>
+        <h2>Informações da página principal</h2>
+        <form class="painel formulario" th:action="@{/admin/informacoes}" th:object="${info}" method="post">
+            <div>
+                <label for="info-nome">Nome da oficina</label>
+                <input type="text" id="info-nome" name="nome" th:value="*{nome}" required>
+            </div>
+            <div>
+                <label for="slogan">Slogan</label>
+                <input type="text" th:field="*{slogan}">
+            </div>
+            <div>
+                <label for="telefone">Telefone</label>
+                <input type="text" th:field="*{telefone}" placeholder="(11) 3333-4444">
+            </div>
+            <div>
+                <label for="whatsapp">WhatsApp</label>
+                <input type="text" th:field="*{whatsapp}" placeholder="55 11 99999-8888">
+            </div>
+            <div>
+                <label for="email">E-mail</label>
+                <input type="email" th:field="*{email}">
+            </div>
+            <div>
+                <label for="endereco">Endereço</label>
+                <input type="text" th:field="*{endereco}">
+            </div>
+            <div class="inteiro">
+                <label for="horarioFuncionamento">Horário de funcionamento</label>
+                <textarea th:field="*{horarioFuncionamento}"></textarea>
+            </div>
+            <div class="inteiro">
+                <label for="sobre">Sobre a oficina</label>
+                <textarea th:field="*{sobre}"></textarea>
+            </div>
+            <div class="inteiro">
+                <button class="botao" type="submit">Salvar informações</button>
+            </div>
+        </form>
+    </section>
+</div>
+
+</body>
+</html>

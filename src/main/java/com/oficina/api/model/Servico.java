@@ -10,9 +10,19 @@ public class Servico {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
+    // Nome exibido no site (ex.: "Troca de óleo")
+    private String nome;
+
+    @Column(length = 1000)
     private String descricao;
 
     private Double preco;
+
+    // Texto livre, ex.: "1 hora", "1 dia"
+    private String tempoEstimado;
+
+    // Serviços inativos não aparecem na página principal
+    private Boolean ativo = true;
 
     // Construtor padrão
     public Servico() {}
@@ -34,6 +44,14 @@ public class Servico {
         this.id = id;
     }
 
+    public String getNome() {
+        return nome;
+    }
+
+    public void setNome(String nome) {
+        this.nome = nome;
+    }
+
     public String getDescricao() {
         return descricao;
     }
@@ -48,5 +66,26 @@ public class Servico {
 
     public void setPreco(Double preco) {
         this.preco = preco;
+    }
+
+    public String getTempoEstimado() {
+        return tempoEstimado;
+    }
+
+    public void setTempoEstimado(String tempoEstimado) {
+        this.tempoEstimado = tempoEstimado;
+    }
+
+    public Boolean getAtivo() {
+        return ativo;
+    }
+
+    public void setAtivo(Boolean ativo) {
+        this.ativo = ativo;
+    }
+
+    // Registros antigos não têm a coluna "ativo" preenchida: tratamos como ativos
+    public boolean isVisivel() {
+        return ativo == null || ativo;
     }
 }

@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html lang="pt-BR" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title th:text="${info.nome}">Oficina Mecânica</title>
+    <link rel="stylesheet" th:href="@{/css/site.css}">
+</head>
+<body>
+
+<header class="topo">
+    <div class="container">
+        <a class="marca" th:href="@{/}" th:text="${info.nome}">Oficina Mecânica</a>
+        <nav>
+            <a href="#servicos">Serviços</a>
+            <a href="#sobre">Sobre</a>
+            <a href="#contato">Contato</a>
+        </nav>
+    </div>
+</header>
+
+<div class="hero">
+    <div class="container">
+        <h1 th:text="${info.nome}">Oficina Mecânica</h1>
+        <p th:if="${info.slogan}" th:text="${info.slogan}">Slogan</p>
+        <a class="botao" th:if="${info.whatsappLink}" th:href="${info.whatsappLink}" target="_blank" rel="noopener">Agende pelo WhatsApp</a>
+        <a class="botao" th:unless="${info.whatsappLink}" href="#contato">Fale conosco</a>
+    </div>
+</div>
+
+<section id="servicos">
+    <div class="container">
+        <h2>Serviços e valores</h2>
+        <div class="grade-servicos" th:if="${!servicos.isEmpty()}">
+            <div class="card" th:each="s : ${servicos}">
+                <h3 th:text="${s.nome != null ? s.nome : s.descricao}">Serviço</h3>
+                <p th:text="${s.nome != null ? s.descricao : ''}">Descrição</p>
+                <div class="preco" th:if="${s.preco != null}"
+                     th:text="'R$ ' + ${#numbers.formatDecimal(s.preco, 1, 'POINT', 2, 'COMMA')}">R$ 0,00</div>
+                <div class="preco" th:if="${s.preco == null}">Sob consulta</div>
+                <div class="tempo" th:if="${s.tempoEstimado}" th:text="'Tempo estimado: ' + ${s.tempoEstimado}"></div>
+            </div>
+        </div>
+        <p class="vazio" th:if="${servicos.isEmpty()}">Em breve publicaremos nossos serviços.</p>
+    </div>
+</section>
+
+<section id="sobre" class="sobre" th:if="${info.sobre}">
+    <div class="container">
+        <h2>Sobre a oficina</h2>
+        <p th:text="${info.sobre}">Texto sobre a oficina.</p>
+    </div>
+</section>
+
+<section id="contato">
+    <div class="container">
+        <h2>Contato</h2>
+        <div class="grade-contato">
+            <div class="card" th:if="${info.telefone}">
+                <h3>Telefone</h3>
+                <p><a th:href="'tel:' + ${info.telefone}" th:text="${info.telefone}"></a></p>
+            </div>
+            <div class="card" th:if="${info.whatsappLink}">
+                <h3>WhatsApp</h3>
+                <p><a th:href="${info.whatsappLink}" target="_blank" rel="noopener" th:text="${info.whatsapp}"></a></p>
+            </div>
+            <div class="card" th:if="${info.email}">
+                <h3>E-mail</h3>
+                <p><a th:href="'mailto:' + ${info.email}" th:text="${info.email}"></a></p>
+            </div>
+            <div class="card" th:if="${info.endereco}">
+                <h3>Endereço</h3>
+                <p th:text="${info.endereco}"></p>
+            </div>
+            <div class="card" th:if="${info.horarioFuncionamento}">
+                <h3>Horário de funcionamento</h3>
+                <p th:text="${info.horarioFuncionamento}"></p>
+            </div>
+        </div>
+    </div>
+</section>
+
+<footer class="rodape">
+    <div class="container">
+        <span th:text="${info.nome}">Oficina Mecânica</span> · <a th:href="@{/admin}">Área administrativa</a>
+    </div>
+</footer>
+
+</body>
+</html>

@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html lang="pt-BR" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Entrar · Administração</title>
+    <link rel="stylesheet" th:href="@{/css/site.css}">
+</head>
+<body>
+<div class="container login">
+    <form class="painel" th:action="@{/login}" method="post">
+        <h2 style="margin:0">Área administrativa</h2>
+        <p style="margin:4px 0 0;color:var(--cor-suave)" th:text="${info.nome}">Oficina</p>
+        <div class="alerta erro" th:if="${param.error}">Usuário ou senha inválidos.</div>
+        <div class="alerta ok" th:if="${param.logout}">Você saiu da área administrativa.</div>
+        <div>
+            <label for="username">Usuário</label>
+            <input type="text" id="username" name="username" autofocus required>
+        </div>
+        <div>
+            <label for="password">Senha</label>
+            <input type="password" id="password" name="password" required>
+        </div>
+        <div class="acoes">
+            <button class="botao" type="submit">Entrar</button>
+            <a th:href="@{/}">Voltar ao site</a>
+        </div>
+    </form>
+</div>
+</body>
+</html>
