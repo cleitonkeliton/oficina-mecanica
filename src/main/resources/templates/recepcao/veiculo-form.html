@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html lang="pt-BR" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/layout :: head(${veiculoForm.id == null} ? 'Novo veículo' : 'Veículo')}"></head>
+<body>
+<th:block th:replace="~{fragments/layout :: equipe('veiculos')}"></th:block>
+<main class="app-conteudo">
+    <div class="container" th:classappend="${veiculoForm.id == null} ? 'container-estreito'">
+        <a class="voltar" th:href="@{/recepcao/veiculos}">&larr; Veículos</a>
+        <div th:replace="~{fragments/layout :: flash}"></div>
+
+        <div class="pagina-titulo">
+            <div>
+                <h1 th:text="${veiculoForm.id == null} ? 'Novo veículo' : 'Veículo ' + ${veiculoForm.placa}">Veículo</h1>
+                <p th:if="${voltar == 'entrada'}">Depois de salvar, você volta para a entrada do carro.</p>
+            </div>
+            <a class="btn" th:if="${veiculoForm.id != null}" th:href="@{/recepcao/entrada(placa=${veiculoForm.placa})}">Registrar entrada</a>
+        </div>
+
+        <div th:class="${veiculoForm.id != null} ? 'grid grid-lateral' : ''">
+            <div class="card mt-0">
+                <form class="form" th:action="@{/recepcao/veiculos}" th:object="${veiculoForm}" method="post">
+                    <input type="hidden" th:field="*{id}">
+                    <input type="hidden" name="voltar" th:if="${voltar}" th:value="${voltar}">
+
+                    <div class="campo" th:classappend="${#fields.hasErrors('clienteId')} ? 'campo-erro'">
+                        <label for="clienteId">Dono do veículo</label>
+                        <select id="clienteId" th:field="*{clienteId}" required>
+                            <option value="">Selecione o cliente...</option>
+                            <option th:each="c : ${clientes}" th:value="${c.id}" th:text="${c.nome} + ' — ' + ${c.cpfFormatado}">Cliente</option>
+                        </select>
+                        <span class="ajuda">
+                            Não está na lista?
+                            <a th:href="@{/recepcao/clientes/novo(voltar='veiculo', placa=*{placa})}">Cadastre um novo cliente</a>.
+                        </span>
+                        <span class="erro-campo" th:errors="*{clienteId}"></span>
+                    </div>
+
+                    <div class="form-linha">
+                        <div class="campo" th:classappend="${#fields.hasErrors('placa')} ? 'campo-erro'">
+                            <label for="placa">Placa</label>
+                            <input type="text" id="placa" th:field="*{placa}" maxlength="10" placeholder="ABC1D23"
+                                   style="text-transform: uppercase;" required>
+                            <span class="erro-campo" th:errors="*{placa}"></span>
+                        </div>
+                        <div class="campo" th:classappend="${#fields.hasErrors('ano')} ? 'campo-erro'">
+                            <label for="ano">Ano</label>
+                            <input type="number" id="ano" th:field="*{ano}" min="1900" max="2100" placeholder="2020">
+                            <span class="erro-campo" th:errors="*{ano}"></span>
+                        </div>
+                    </div>
+                    <div class="form-linha">
+                        <div class="campo" th:classappend="${#fields.hasErrors('marca')} ? 'campo-erro'">
+                            <label for="marca">Marca</label>
+                            <input type="text" id="marca" th:field="*{marca}" maxlength="60" placeholder="Ex.: Chevrolet" required>
+                            <span class="erro-campo" th:errors="*{marca}"></span>
+                        </div>
+                        <div class="campo" th:classappend="${#fields.hasErrors('modelo')} ? 'campo-erro'">
+                            <label for="modelo">Modelo</label>
+                            <input type="text" id="modelo" th:field="*{modelo}" maxlength="60" placeholder="Ex.: Onix 1.0" required>
+                            <span class="erro-campo" th:errors="*{modelo}"></span>
+                        </div>
+                        <div class="campo" th:classappend="${#fields.hasErrors('cor')} ? 'campo-erro'">
+                            <label for="cor">Cor</label>
+                            <input type="text" id="cor" th:field="*{cor}" maxlength="30" placeholder="Ex.: Prata">
+                            <span class="erro-campo" th:errors="*{cor}"></span>
+                        </div>
+                    </div>
+
+                    <div class="form-acoes">
+                        <button class="btn" type="submit" th:text="${voltar == 'entrada'} ? 'Salvar e registrar entrada' : 'Salvar veículo'">Salvar</button>
+                        <a class="btn btn-secundario" th:href="@{/recepcao/veiculos}">Cancelar</a>
+                    </div>
+                </form>
+            </div>
+
+            <aside th:if="${veiculoForm.id != null}">
+                <section class="card mt-0">
+                    <h3>Passagens pela oficina</h3>
+                    <ul class="timeline" th:if="${ordens != null and !ordens.isEmpty()}">
+                        <li th:each="o : ${ordens}">
+                            <a th:href="@{/recepcao/ordens/{id}(id=${o.id})}" th:text="${o.numero}">OS</a>
+                            <span th:replace="~{fragments/layout :: status(${o.status})}"></span>
+                            <div class="quando" th:text="${#temporals.format(o.dataEntrada, 'dd/MM/yyyy')} + ' · ' + ${#numbers.formatCurrency(o.valorTotal)}">data</div>
+                        </li>
+                    </ul>
+                    <p class="muted pequeno" th:if="${ordens == null or ordens.isEmpty()}">Nenhuma ordem de serviço ainda.</p>
+                </section>
+                <section class="card" th:if="${ordens == null or ordens.isEmpty()}">
+                    <h3>Excluir veículo</h3>
+                    <form th:action="@{/recepcao/veiculos/{id}/excluir(id=${veiculoForm.id})}" method="post"
+                          data-confirmar="Excluir este veículo?">
+                        <button class="btn btn-sm btn-perigo" type="submit">Excluir veículo</button>
+                    </form>
+                </section>
+            </aside>
+        </div>
+    </div>
+</main>
+</body>
+</html>

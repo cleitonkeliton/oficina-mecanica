@@ -1,0 +1,232 @@
+<!DOCTYPE html>
+<html lang="pt-BR" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/layout :: head(${ordem.numero})}"></head>
+<body>
+<th:block th:replace="~{fragments/layout :: equipe('recepcao')}"></th:block>
+<main class="app-conteudo">
+    <div class="container" th:with="finalizada=${ordem.status.finalizado}">
+        <a class="voltar" th:href="@{/recepcao}">&larr; Carros na oficina</a>
+        <div th:replace="~{fragments/layout :: flash}"></div>
+
+        <div class="pagina-titulo">
+            <div>
+                <div class="ordem-cabecalho">
+                    <h1 th:text="${ordem.numero}">OS</h1>
+                    <span th:replace="~{fragments/layout :: status(${ordem.status})}"></span>
+                    <span class="tag-atraso" th:if="${ordem.atrasada}">Atrasado</span>
+                </div>
+                <p>
+                    <span class="placa" th:text="${ordem.veiculo.placaFormatada}">ABC1D23</span>
+                    <span th:text="${ordem.veiculo.descricao}">Carro</span> ·
+                    entrada em <span th:text="${#temporals.format(ordem.dataEntrada, 'dd/MM/yyyy HH:mm')}">data</span>
+                </p>
+            </div>
+            <div class="direita">
+                <div class="muted pequeno">Total</div>
+                <div class="total-grande" th:text="${#numbers.formatCurrency(ordem.valorTotal)}">R$ 0,00</div>
+            </div>
+        </div>
+
+        <div class="alerta alerta-info" th:if="${finalizada}">
+            Esta ordem está <strong th:text="${#strings.toLowerCase(ordem.status.descricao)}">entregue</strong>
+            e não pode ser alterada. Se precisar mexer, mude a situação abaixo para reabri-la.
+        </div>
+
+        <div class="grid grid-lateral">
+            <div>
+                <!-- Mudar situação -->
+                <section class="card mt-0">
+                    <h2>Atualizar situação</h2>
+                    <p class="muted pequeno">A situação e a observação aparecem para o dono do carro na área do cliente.</p>
+                    <form class="form" th:action="@{/recepcao/ordens/{id}/status(id=${ordem.id})}" method="post">
+                        <div class="campo">
+                            <label for="status">Nova situação</label>
+                            <select id="status" name="status">
+                                <option th:each="s : ${statusList}" th:value="${s}" th:text="${s.descricao}"
+                                        th:selected="${s == ordem.status}">Situação</option>
+                            </select>
+                        </div>
+                        <div class="campo">
+                            <label for="observacao">Observação para o cliente</label>
+                            <textarea id="observacao" name="observacao" maxlength="1000"
+                                      placeholder="Ex.: Orçamento enviado pelo WhatsApp; aguardando sua aprovação."></textarea>
+                            <span class="ajuda">Para só deixar um recado, mantenha a mesma situação e escreva a observação.</span>
+                        </div>
+                        <div class="form-acoes">
+                            <button class="btn" type="submit">Salvar situação</button>
+                        </div>
+                    </form>
+                </section>
+
+                <!-- Serviços e peças -->
+                <section class="card" id="itens">
+                    <div class="card-titulo">
+                        <h2>Serviços e peças</h2>
+                        <span class="total-grande" style="font-size: 1.2rem;" th:text="${#numbers.formatCurrency(ordem.valorTotal)}">R$</span>
+                    </div>
+                    <div class="tabela-wrap">
+                        <table class="tabela">
+                            <thead>
+                            <tr>
+                                <th>Descrição</th>
+                                <th class="num">Qtd.</th>
+                                <th class="num">Valor unit.</th>
+                                <th class="num">Subtotal</th>
+                                <th th:unless="${finalizada}"><span class="sr-only">Ações</span></th>
+                            </tr>
+                            </thead>
+                            <tbody>
+                            <tr th:each="item : ${ordem.itens}">
+                                <td th:text="${item.descricao}">Item</td>
+                                <td class="num" th:text="${item.quantidade}">1</td>
+                                <td class="num" th:text="${#numbers.formatCurrency(item.valorUnitario)}">R$</td>
+                                <td class="num" th:text="${#numbers.formatCurrency(item.subtotal)}">R$</td>
+                                <td th:unless="${finalizada}" class="direita">
+                                    <form th:action="@{/recepcao/ordens/{id}/itens/{item}/excluir(id=${ordem.id}, item=${item.id})}"
+                                          method="post" data-confirmar="Remover este item da ordem?">
+                                        <button class="btn btn-sm btn-perigo" type="submit">Remover</button>
+                                    </form>
+                                </td>
+                            </tr>
+                            <tr th:if="${ordem.itens.isEmpty()}">
+                                <td th:colspan="${finalizada} ? 4 : 5" class="tabela-vazia">Nenhum serviço lançado ainda.</td>
+                            </tr>
+                            </tbody>
+                            <tfoot th:unless="${ordem.itens.isEmpty()}">
+                            <tr>
+                                <td colspan="3">Total</td>
+                                <td class="num" th:text="${#numbers.formatCurrency(ordem.valorTotal)}">R$</td>
+                                <td th:unless="${finalizada}"></td>
+                            </tr>
+                            </tfoot>
+                        </table>
+                    </div>
+
+                    <div class="grid grid-2 espaco" th:unless="${finalizada}">
+                        <form class="form" th:action="@{/recepcao/ordens/{id}/itens/servico(id=${ordem.id})}" method="post">
+                            <div class="campo">
+                                <label for="servicoId">Adicionar serviço do catálogo</label>
+                                <select id="servicoId" name="servicoId" required>
+                                    <option value="">Selecione...</option>
+                                    <option th:each="s : ${servicos}" th:value="${s.id}"
+                                            th:text="${s.nome} + ' — ' + ${#numbers.formatCurrency(s.preco)}">Serviço</option>
+                                </select>
+                                <span class="ajuda">Entra com o preço do catálogo. Para outro valor, use o item avulso.</span>
+                            </div>
+                            <div><button class="btn btn-secundario" type="submit">Adicionar serviço</button></div>
+                        </form>
+
+                        <form class="form" th:action="@{/recepcao/ordens/{id}/itens(id=${ordem.id})}" th:object="${itemForm}" method="post">
+                            <div class="campo" th:classappend="${#fields.hasErrors('descricao')} ? 'campo-erro'">
+                                <label for="descricao">Peça ou serviço avulso</label>
+                                <input type="text" id="descricao" th:field="*{descricao}" maxlength="150" placeholder="Ex.: Pastilha de freio dianteira">
+                                <span class="erro-campo" th:errors="*{descricao}"></span>
+                            </div>
+                            <div class="form-linha">
+                                <div class="campo" th:classappend="${#fields.hasErrors('quantidade')} ? 'campo-erro'">
+                                    <label for="quantidade">Qtd.</label>
+                                    <input type="number" id="quantidade" min="1" max="999" th:field="*{quantidade}">
+                                    <span class="erro-campo" th:errors="*{quantidade}"></span>
+                                </div>
+                                <div class="campo" th:classappend="${#fields.hasErrors('valorUnitario')} ? 'campo-erro'">
+                                    <label for="valorUnitario">Valor unit. (R$)</label>
+                                    <input type="number" id="valorUnitario" min="0" step="0.01" th:field="*{valorUnitario}" placeholder="0,00">
+                                    <span class="erro-campo" th:errors="*{valorUnitario}"></span>
+                                </div>
+                            </div>
+                            <div><button class="btn btn-secundario" type="submit">Adicionar item</button></div>
+                        </form>
+                    </div>
+                </section>
+
+                <!-- Dados da ordem -->
+                <section class="card">
+                    <h2>Dados da entrada</h2>
+                    <form class="form" th:action="@{/recepcao/ordens/{id}/dados(id=${ordem.id})}" th:object="${dadosForm}" method="post">
+                        <fieldset th:disabled="${finalizada}" style="border: 0; padding: 0; margin: 0; display: grid; gap: 16px;">
+                            <div class="form-linha">
+                                <div class="campo" th:classappend="${#fields.hasErrors('quilometragem')} ? 'campo-erro'">
+                                    <label for="quilometragem">Quilometragem</label>
+                                    <input type="number" min="0" id="quilometragem" th:field="*{quilometragem}">
+                                    <span class="erro-campo" th:errors="*{quilometragem}"></span>
+                                </div>
+                                <div class="campo" th:classappend="${#fields.hasErrors('previsaoEntrega')} ? 'campo-erro'">
+                                    <label for="previsaoEntrega">Previsão de entrega</label>
+                                    <input type="date" id="previsaoEntrega" th:field="*{previsaoEntrega}">
+                                    <span class="erro-campo" th:errors="*{previsaoEntrega}"></span>
+                                </div>
+                            </div>
+                            <div class="campo" th:classappend="${#fields.hasErrors('descricaoProblema')} ? 'campo-erro'">
+                                <label for="descricaoProblema">O que o cliente relatou</label>
+                                <textarea id="descricaoProblema" th:field="*{descricaoProblema}" maxlength="2000"></textarea>
+                                <span class="erro-campo" th:errors="*{descricaoProblema}"></span>
+                            </div>
+                            <div class="campo" th:classappend="${#fields.hasErrors('observacoes')} ? 'campo-erro'">
+                                <label for="observacoesDados">Observações para o cliente</label>
+                                <textarea id="observacoesDados" th:field="*{observacoes}" maxlength="2000"></textarea>
+                                <span class="erro-campo" th:errors="*{observacoes}"></span>
+                            </div>
+                            <div class="form-acoes"><button class="btn btn-secundario" type="submit">Salvar dados</button></div>
+                        </fieldset>
+                    </form>
+                </section>
+            </div>
+
+            <aside>
+                <section class="card mt-0">
+                    <div class="card-titulo">
+                        <h3>Cliente</h3>
+                        <a class="btn btn-sm btn-secundario" th:href="@{/recepcao/clientes/{id}(id=${ordem.cliente.id})}">Ver</a>
+                    </div>
+                    <dl class="dados">
+                        <dt>Nome</dt><dd th:text="${ordem.cliente.nome}">Nome</dd>
+                        <dt>CPF</dt><dd th:text="${ordem.cliente.cpfFormatado}">CPF</dd>
+                        <dt>Telefone</dt><dd th:text="${ordem.cliente.telefone} ?: '—'">Tel</dd>
+                        <dt>E-mail</dt><dd th:text="${ordem.cliente.email} ?: '—'">E-mail</dd>
+                        <dt>Site</dt>
+                        <dd th:text="${clienteTemAcesso} ? 'Acompanha pelo site' : 'Sem acesso ao site'">Acesso</dd>
+                    </dl>
+                </section>
+
+                <section class="card">
+                    <div class="card-titulo">
+                        <h3>Veículo</h3>
+                        <a class="btn btn-sm btn-secundario" th:href="@{/recepcao/veiculos/{id}(id=${ordem.veiculo.id})}">Ver</a>
+                    </div>
+                    <dl class="dados">
+                        <dt>Placa</dt><dd><span class="placa" th:text="${ordem.veiculo.placaFormatada}">ABC</span></dd>
+                        <dt>Veículo</dt><dd th:text="${ordem.veiculo.descricao}">Carro</dd>
+                        <dt>Cor</dt><dd th:text="${ordem.veiculo.cor} ?: '—'">Cor</dd>
+                        <dt>Km</dt><dd th:text="${ordem.quilometragem != null} ? ${#numbers.formatInteger(ordem.quilometragem, 1, 'POINT')} + ' km' : '—'">km</dd>
+                    </dl>
+                </section>
+
+                <section class="card">
+                    <h3>Datas</h3>
+                    <dl class="dados">
+                        <dt>Entrada</dt><dd th:text="${#temporals.format(ordem.dataEntrada, 'dd/MM/yyyy HH:mm')}">data</dd>
+                        <dt>Previsão</dt><dd th:text="${ordem.previsaoEntrega != null} ? ${#temporals.format(ordem.previsaoEntrega, 'dd/MM/yyyy')} : '—'">data</dd>
+                        <dt>Ficou pronto</dt><dd th:text="${ordem.dataConclusao != null} ? ${#temporals.format(ordem.dataConclusao, 'dd/MM/yyyy HH:mm')} : '—'">data</dd>
+                        <dt>Entregue</dt><dd th:text="${ordem.dataEntrega != null} ? ${#temporals.format(ordem.dataEntrega, 'dd/MM/yyyy HH:mm')} : '—'">data</dd>
+                    </dl>
+                </section>
+
+                <section class="card">
+                    <h3>Histórico</h3>
+                    <ol class="timeline">
+                        <li th:each="h : ${ordem.historico}">
+                            <span th:replace="~{fragments/layout :: status(${h.status})}"></span>
+                            <div class="quando">
+                                <span th:text="${#temporals.format(h.dataHora, 'dd/MM/yyyy HH:mm')}">data</span>
+                                <span th:if="${h.responsavel}" th:text="' · ' + ${h.responsavel}">quem</span>
+                            </div>
+                            <p class="obs" th:if="${h.observacao}" th:text="${h.observacao}">obs</p>
+                        </li>
+                    </ol>
+                </section>
+            </aside>
+        </div>
+    </div>
+</main>
+</body>
+</html>

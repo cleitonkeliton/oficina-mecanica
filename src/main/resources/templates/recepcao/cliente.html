@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html lang="pt-BR" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/layout :: head(${cliente.nome})}"></head>
+<body>
+<th:block th:replace="~{fragments/layout :: equipe('clientes')}"></th:block>
+<main class="app-conteudo">
+    <div class="container">
+        <a class="voltar" th:href="@{/recepcao/clientes}">&larr; Clientes</a>
+        <div th:replace="~{fragments/layout :: flash}"></div>
+
+        <div class="pagina-titulo">
+            <div>
+                <h1 th:text="${cliente.nome}">Nome</h1>
+                <p>CPF <span th:text="${cliente.cpfFormatado}">CPF</span>
+                    <th:block th:if="${cliente.dataCadastro}"> · cliente desde <span th:text="${#temporals.format(cliente.dataCadastro, 'dd/MM/yyyy')}">data</span></th:block>
+                </p>
+            </div>
+            <div class="acoes">
+                <a class="btn btn-secundario" th:href="@{/recepcao/clientes/{id}/editar(id=${cliente.id})}">Editar dados</a>
+                <a class="btn" th:href="@{/recepcao/veiculos/novo(clienteId=${cliente.id})}">+ Adicionar veículo</a>
+            </div>
+        </div>
+
+        <div class="grid grid-lateral">
+            <div>
+                <section class="card mt-0">
+                    <h2>Veículos</h2>
+                    <div class="tabela-wrap">
+                        <table class="tabela">
+                            <thead><tr><th>Placa</th><th>Veículo</th><th>Cor</th><th><span class="sr-only">Ações</span></th></tr></thead>
+                            <tbody>
+                            <tr th:each="v : ${veiculos}">
+                                <td><span class="placa" th:text="${v.placaFormatada}">ABC</span></td>
+                                <td th:text="${v.descricao}">Carro</td>
+                                <td th:text="${v.cor} ?: '—'">Cor</td>
+                                <td class="direita acoes" style="justify-content: flex-end;">
+                                    <a class="btn btn-sm" th:href="@{/recepcao/entrada(placa=${v.placa})}">Registrar entrada</a>
+                                    <a class="btn btn-sm btn-secundario" th:href="@{/recepcao/veiculos/{id}(id=${v.id})}">Editar</a>
+                                </td>
+                            </tr>
+                            <tr th:if="${veiculos.isEmpty()}"><td colspan="4" class="tabela-vazia">Nenhum veículo cadastrado.</td></tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </section>
+
+                <section class="card">
+                    <h2>Ordens de serviço</h2>
+                    <div th:replace="~{fragments/ordens :: tabela(${ordens}, false)}"></div>
+                </section>
+            </div>
+
+            <aside>
+                <section class="card mt-0">
+                    <h3>Contato</h3>
+                    <dl class="dados">
+                        <dt>Telefone</dt><dd th:text="${cliente.telefone} ?: '—'">Tel</dd>
+                        <dt>E-mail</dt><dd th:text="${cliente.email} ?: '—'">E-mail</dd>
+                    </dl>
+                </section>
+
+                <section class="card">
+                    <h3>Acesso ao site</h3>
+                    <p th:if="${temAcesso}">
+                        <span class="badge status-pronto">Liberado</span><br>
+                        <span class="pequeno muted">O cliente entra em "Acompanhar meu carro" com o CPF
+                            <strong th:text="${cliente.cpfFormatado}">CPF</strong> e a senha cadastrada.</span>
+                    </p>
+                    <p th:unless="${temAcesso}" class="pequeno muted">
+                        Defina uma senha para o cliente acompanhar a situação do carro pelo site.
+                    </p>
+                    <form class="form" th:action="@{/recepcao/clientes/{id}/acesso(id=${cliente.id})}" method="post">
+                        <div class="campo">
+                            <label for="senha" th:text="${temAcesso} ? 'Nova senha' : 'Senha'">Senha</label>
+                            <div class="busca">
+                                <input type="password" id="senha" name="senha" minlength="6" maxlength="60" autocomplete="new-password" required>
+                                <button class="btn btn-secundario" type="button" data-gerar-senha="senha">Gerar</button>
+                            </div>
+                            <span class="ajuda">Mínimo 6 caracteres. Anote e passe para o cliente.</span>
+                        </div>
+                        <div><button class="btn" type="submit" th:text="${temAcesso} ? 'Trocar senha' : 'Liberar acesso'">Salvar</button></div>
+                    </form>
+                    <form th:if="${temAcesso}" class="espaco" th:action="@{/recepcao/clientes/{id}/acesso/remover(id=${cliente.id})}"
+                          method="post" data-confirmar="Remover o acesso deste cliente ao site?">
+                        <button class="btn btn-sm btn-perigo" type="submit">Remover acesso</button>
+                    </form>
+                </section>
+
+                <section class="card">
+                    <h3>Excluir cliente</h3>
+                    <p class="pequeno muted">Só é possível excluir clientes sem veículos e sem ordens de serviço.</p>
+                    <form th:action="@{/recepcao/clientes/{id}/excluir(id=${cliente.id})}" method="post"
+                          data-confirmar="Excluir este cliente? Esta ação não pode ser desfeita.">
+                        <button class="btn btn-sm btn-perigo" type="submit">Excluir cliente</button>
+                    </form>
+                </section>
+            </aside>
+        </div>
+    </div>
+</main>
+</body>
+</html>

@@ -1,0 +1,14 @@
+# Build
+target/
+out/
+*.log
+
+# IntelliJ (arquivos pessoais)
+.idea/workspace.xml
+.idea/shelf/
+.idea/dataSources*
+*.iws
+
+# Sistema
+.DS_Store
+Thumbs.db

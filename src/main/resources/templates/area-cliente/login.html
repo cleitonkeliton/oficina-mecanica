@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html lang="pt-BR" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/layout :: head('Acompanhe seu carro')}"></head>
+<body>
+<main class="login-pagina">
+    <div class="login-caixa">
+        <a class="marca" th:href="@{/}">
+            <span th:replace="~{fragments/layout :: logo}"></span>
+            <span th:text="${site.nomeOficina}">Oficina</span>
+        </a>
+        <h1>Acompanhe seu carro</h1>
+        <p class="subtitulo">Entre com o seu CPF e a senha que a recepção da oficina passou para você.</p>
+
+        <div class="alerta alerta-erro" role="alert" th:if="${param.erro}">CPF ou senha incorretos.</div>
+        <div class="alerta alerta-sucesso" role="status" th:if="${param.saiu}">Você saiu da sua área.</div>
+
+        <form class="form" th:action="@{/login}" method="post">
+            <input type="hidden" name="origem" value="cliente">
+            <div class="campo">
+                <label for="login">CPF</label>
+                <input type="text" id="login" name="login" inputmode="numeric" placeholder="000.000.000-00"
+                       autocomplete="username" required autofocus>
+            </div>
+            <div class="campo">
+                <label for="senha">Senha</label>
+                <input type="password" id="senha" name="senha" autocomplete="current-password" required>
+            </div>
+            <button class="btn btn-bloco btn-grande" type="submit">Ver situação do meu carro</button>
+        </form>
+
+        <p class="pequeno muted espaco mb-0">
+            Ainda não tem senha? Peça na recepção
+            <th:block th:if="${site.whatsappLink}">ou pelo <a th:href="${site.whatsappLink}" target="_blank" rel="noopener">WhatsApp</a></th:block>.
+        </p>
+
+        <div class="login-rodape">
+            <a th:href="@{/}">&larr; Voltar ao site</a>
+            <a th:href="@{/login}">Acesso da equipe</a>
+        </div>
+    </div>
+</main>
+</body>
+</html>

@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html lang="pt-BR" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/layout :: head('Carros na oficina')}"></head>
+<body>
+<th:block th:replace="~{fragments/layout :: equipe('recepcao')}"></th:block>
+<main class="app-conteudo">
+    <div class="container">
+        <div th:replace="~{fragments/layout :: flash}"></div>
+
+        <div class="pagina-titulo">
+            <div>
+                <h1>Carros na oficina</h1>
+                <p>Atualize a situação de cada carro: o dono vê a mudança na hora, pela área do cliente.</p>
+            </div>
+            <a class="btn btn-grande" th:href="@{/recepcao/entrada}">+ Registrar entrada de veículo</a>
+        </div>
+
+        <div class="chips" aria-label="Quantidade por situação">
+            <th:block th:each="s : ${statusList}" th:unless="${s.finalizado}">
+                <a class="chip" th:href="@{/recepcao/ordens(status=${s})}">
+                    <span th:text="${s.descricao}">Situação</span>
+                    <span class="qtd" th:text="${contagem.get(s)}">0</span>
+                </a>
+            </th:block>
+            <a class="chip" th:if="${totalAtrasados > 0}" th:href="@{/recepcao/ordens}" style="border-color: #fecaca; color: #b91c1c;">
+                <span>Atrasados</span><span class="qtd" th:text="${totalAtrasados}">0</span>
+            </a>
+        </div>
+
+        <form class="busca" th:action="@{/recepcao/ordens}" method="get" role="search" style="margin-bottom: 16px;">
+            <label class="sr-only" for="q">Buscar</label>
+            <input type="search" id="q" name="q" placeholder="Buscar por placa, cliente, modelo ou número da OS">
+            <button class="btn btn-escuro" type="submit">Buscar</button>
+        </form>
+
+        <div th:replace="~{fragments/ordens :: tabela(${ordens}, true)}"></div>
+    </div>
+</main>
+</body>
+</html>

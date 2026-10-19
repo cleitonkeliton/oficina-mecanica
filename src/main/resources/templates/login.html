@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html lang="pt-BR" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/layout :: head('Acesso da equipe')}"></head>
+<body>
+<main class="login-pagina">
+    <div class="login-caixa">
+        <a class="marca" th:href="@{/}">
+            <span th:replace="~{fragments/layout :: logo}"></span>
+            <span th:text="${site.nomeOficina}">Oficina</span>
+        </a>
+        <h1>Acesso da equipe</h1>
+        <p class="subtitulo">Administração e recepção da oficina.</p>
+
+        <div class="alerta alerta-erro" role="alert" th:if="${param.erro}">Login ou senha incorretos (ou usuário desativado).</div>
+        <div class="alerta alerta-sucesso" role="status" th:if="${param.saiu}">Você saiu do sistema.</div>
+
+        <form class="form" th:action="@{/login}" method="post">
+            <div class="campo">
+                <label for="login">Login</label>
+                <input type="text" id="login" name="login" autocomplete="username" required autofocus>
+            </div>
+            <div class="campo">
+                <label for="senha">Senha</label>
+                <input type="password" id="senha" name="senha" autocomplete="current-password" required>
+            </div>
+            <button class="btn btn-bloco btn-grande" type="submit">Entrar</button>
+        </form>
+
+        <div class="login-rodape">
+            <a th:href="@{/}">&larr; Voltar ao site</a>
+            <a th:href="@{/area-cliente/login}">Sou cliente</a>
+        </div>
+    </div>
+</main>
+</body>
+</html>

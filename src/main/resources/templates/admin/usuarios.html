@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html lang="pt-BR" xmlns:th="http://www.thymeleaf.org"
+      xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<head th:replace="~{fragments/layout :: head('Usuários')}"></head>
+<body>
+<th:block th:replace="~{fragments/layout :: equipe('usuarios')}"></th:block>
+<main class="app-conteudo">
+    <div class="container">
+        <div th:replace="~{fragments/layout :: flash}"></div>
+
+        <div class="pagina-titulo">
+            <div>
+                <h1>Usuários da equipe</h1>
+                <p>Quem pode entrar no sistema. Clientes recebem acesso pelo <a th:href="@{/recepcao/clientes}">cadastro de clientes</a>.</p>
+            </div>
+        </div>
+
+        <div class="grid grid-lateral">
+            <div class="tabela-wrap">
+                <table class="tabela">
+                    <thead><tr><th>Nome</th><th>Login</th><th>Perfil</th><th>Situação</th><th><span class="sr-only">Ações</span></th></tr></thead>
+                    <tbody>
+                    <tr th:each="u : ${usuarios}" th:classappend="${!u.ativo} ? 'inativo'">
+                        <td th:text="${u.nome}">Nome</td>
+                        <td><code th:text="${u.login}">login</code></td>
+                        <td th:text="${u.perfil.descricao}">Perfil</td>
+                        <td>
+                            <span class="badge status-pronto" th:if="${u.ativo}">Ativo</span>
+                            <span class="badge status-cancelado" th:unless="${u.ativo}">Desativado</span>
+                        </td>
+                        <td>
+                            <details class="caixa">
+                                <summary>Ações</summary>
+                                <form class="form" th:action="@{/admin/usuarios/{id}/senha(id=${u.id})}" method="post">
+                                    <div class="campo">
+                                        <label th:for="'nova-' + ${u.id}">Nova senha</label>
+                                        <input type="password" th:id="'nova-' + ${u.id}" name="novaSenha" minlength="6" maxlength="60" autocomplete="new-password" required>
+                                    </div>
+                                    <div><button class="btn btn-sm btn-secundario" type="submit">Redefinir senha</button></div>
+                                </form>
+                                <form class="espaco" th:action="@{/admin/usuarios/{id}/ativo(id=${u.id})}" method="post"
+                                      th:unless="${#authentication.principal.id == u.id}">
+                                    <button class="btn btn-sm" th:classappend="${u.ativo} ? 'btn-perigo' : 'btn-secundario'" type="submit"
+                                            th:text="${u.ativo} ? 'Desativar' : 'Reativar'">Desativar</button>
+                                </form>
+                            </details>
+                        </td>
+                    </tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <section class="card mt-0">
+                <h2>Novo usuário</h2>
+                <form class="form" th:action="@{/admin/usuarios}" th:object="${usuarioForm}" method="post">
+                    <div class="campo" th:classappend="${#fields.hasErrors('nome')} ? 'campo-erro'">
+                        <label for="nome">Nome</label>
+                        <input type="text" id="nome" th:field="*{nome}" maxlength="120" required>
+                        <span class="erro-campo" th:errors="*{nome}"></span>
+                    </div>
+                    <div class="campo" th:classappend="${#fields.hasErrors('login')} ? 'campo-erro'">
+                        <label for="login">Login</label>
+                        <input type="text" id="login" th:field="*{login}" maxlength="60" autocomplete="off" required placeholder="Ex.: maria.recepcao">
+                        <span class="erro-campo" th:errors="*{login}"></span>
+                    </div>
+                    <div class="campo" th:classappend="${#fields.hasErrors('senha')} ? 'campo-erro'">
+                        <label for="senhaNova">Senha</label>
+                        <input type="password" id="senhaNova" th:field="*{senha}" minlength="6" maxlength="60" autocomplete="new-password" required>
+                        <span class="erro-campo" th:errors="*{senha}"></span>
+                    </div>
+                    <div class="campo" th:classappend="${#fields.hasErrors('perfil')} ? 'campo-erro'">
+                        <label for="perfil">Perfil</label>
+                        <select id="perfil" th:field="*{perfil}">
+                            <option th:each="p : ${perfis}" th:value="${p}" th:text="${p.descricao}">Perfil</option>
+                        </select>
+                        <span class="ajuda">Recepção: cadastra carros e atualiza a situação. Administrador: tudo isso e também o site, preços e usuários.</span>
+                        <span class="erro-campo" th:errors="*{perfil}"></span>
+                    </div>
+                    <div><button class="btn" type="submit">Criar usuário</button></div>
+                </form>
+            </section>
+        </div>
+    </div>
+</main>
+</body>
+</html>

@@ -5,75 +5,75 @@
                              http://maven.apache.org/xsd/maven-4.0.0.xsd">
   <modelVersion>4.0.0</modelVersion>
 
+  <parent>
+    <groupId>org.springframework.boot</groupId>
+    <artifactId>spring-boot-starter-parent</artifactId>
+    <version>3.5.6</version>
+    <relativePath/>
+  </parent>
+
   <!-- Informações básicas do projeto -->
   <groupId>com.oficina</groupId>
   <artifactId>oficina-valdevino</artifactId>
   <version>1.0-SNAPSHOT</version>
-
-  <parent>
-    <groupId>org.springframework.boot</groupId>
-    <artifactId>spring-boot-starter-parent</artifactId>
-    <version>3.1.3</version>
-    <relativePath/>
-  </parent>
+  <name>Oficina Mecânica</name>
+  <description>Site da oficina, área administrativa, recepção e acompanhamento do carro pelo cliente</description>
 
   <!-- Propriedades do projeto -->
   <properties>
-    <maven.compiler.source>24</maven.compiler.source>
-    <maven.compiler.target>24</maven.compiler.target>
+    <!-- Compila para Java 21: roda em qualquer JDK 21 ou mais novo (inclusive o 24) -->
+    <java.version>21</java.version>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
   </properties>
 
   <!-- Dependências do projeto -->
   <dependencies>
-    <!-- MySQL Connector/J -->
-    <dependency>
-      <groupId>mysql</groupId>
-      <artifactId>mysql-connector-java</artifactId>
-      <version>8.0.33</version>
-    </dependency>
-
-    <!-- PostgreSQL -->
-    <dependency>
-      <groupId>org.postgresql</groupId>
-      <artifactId>postgresql</artifactId>
-      <version>42.6.0</version>
-    </dependency>
-
-    <!-- Spring Boot -->
-    <dependency>
-      <groupId>org.springframework.boot</groupId>
-      <artifactId>spring-boot-starter</artifactId>
-    </dependency>
-
+    <!-- Web + páginas HTML com Thymeleaf -->
     <dependency>
       <groupId>org.springframework.boot</groupId>
       <artifactId>spring-boot-starter-web</artifactId>
     </dependency>
+    <dependency>
+      <groupId>org.springframework.boot</groupId>
+      <artifactId>spring-boot-starter-thymeleaf</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>org.thymeleaf.extras</groupId>
+      <artifactId>thymeleaf-extras-springsecurity6</artifactId>
+    </dependency>
 
+    <!-- Banco de dados (JPA + MySQL) -->
     <dependency>
       <groupId>org.springframework.boot</groupId>
       <artifactId>spring-boot-starter-data-jpa</artifactId>
     </dependency>
-
-      <dependency>
-          <groupId>org.springframework.boot</groupId>
-          <artifactId>spring-boot-starter-thymeleaf</artifactId>
-      </dependency>
-
-
-
-    <!-- HikariCP -->
     <dependency>
-      <groupId>com.zaxxer</groupId>
-      <artifactId>HikariCP</artifactId>
-      <version>5.1.0</version>
+      <groupId>com.mysql</groupId>
+      <artifactId>mysql-connector-j</artifactId>
+      <scope>runtime</scope>
     </dependency>
 
+    <!-- Login e controle de acesso -->
     <dependency>
-      <groupId>org.junit.jupiter</groupId>
-      <artifactId>junit-jupiter-api</artifactId>
-      <version>5.10.0</version>
+      <groupId>org.springframework.boot</groupId>
+      <artifactId>spring-boot-starter-security</artifactId>
+    </dependency>
+
+    <!-- Validação dos formulários -->
+    <dependency>
+      <groupId>org.springframework.boot</groupId>
+      <artifactId>spring-boot-starter-validation</artifactId>
+    </dependency>
+
+    <!-- Testes -->
+    <dependency>
+      <groupId>org.springframework.boot</groupId>
+      <artifactId>spring-boot-starter-test</artifactId>
+      <scope>test</scope>
+    </dependency>
+    <dependency>
+      <groupId>org.springframework.security</groupId>
+      <artifactId>spring-security-test</artifactId>
       <scope>test</scope>
     </dependency>
   </dependencies>
@@ -82,37 +82,9 @@
   <build>
     <plugins>
       <plugin>
-        <groupId>org.apache.maven.plugins</groupId>
-        <artifactId>maven-compiler-plugin</artifactId>
-        <version>3.11.0</version>
-        <configuration>
-          <source>${maven.compiler.source}</source>
-          <target>${maven.compiler.target}</target>
-        </configuration>
-      </plugin>
-
-      <plugin>
         <groupId>org.springframework.boot</groupId>
         <artifactId>spring-boot-maven-plugin</artifactId>
       </plugin>
-
-      <!--
-          Plugin para criar um arquivo JAR executável
-      <plugin>
-        <groupId>org.apache.maven.plugins</groupId>
-        <artifactId>maven-jar-plugin</artifactId>
-        <version>3.3.0</version>
-        <configuration>
-          <archive>
-            <manifest>
-              <addClasspath>true</addClasspath>
-              <mainClass>com.oficina.api.OficinaApiApplication</mainClass>
-            </manifest>
-          </archive>
-        </configuration>
-      </plugin>
-      -->
-
     </plugins>
   </build>
 </project>

@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html lang="pt-BR" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/layout :: head('Ordens de serviço')}"></head>
+<body>
+<th:block th:replace="~{fragments/layout :: equipe('ordens')}"></th:block>
+<main class="app-conteudo">
+    <div class="container">
+        <div th:replace="~{fragments/layout :: flash}"></div>
+
+        <div class="pagina-titulo">
+            <div>
+                <h1>Ordens de serviço</h1>
+                <p th:if="${statusFiltro == null and (q == null or q.isBlank())}">Mostrando as 100 mais recentes. Use a busca para encontrar ordens antigas.</p>
+                <p th:unless="${statusFiltro == null and (q == null or q.isBlank())}" th:text="${ordens.size()} + ' ordem(ns) encontrada(s).'">0</p>
+            </div>
+            <a class="btn" th:href="@{/recepcao/entrada}">+ Registrar entrada</a>
+        </div>
+
+        <form class="busca" th:action="@{/recepcao/ordens}" method="get" role="search" style="margin-bottom: 16px;">
+            <label class="sr-only" for="q">Buscar</label>
+            <input type="search" id="q" name="q" th:value="${q}" placeholder="Placa, cliente, modelo ou número da OS">
+            <label class="sr-only" for="status">Situação</label>
+            <select id="status" name="status" style="flex: 0 1 260px;">
+                <option value="">Todas as situações</option>
+                <option th:each="s : ${statusList}" th:value="${s}" th:text="${s.descricao}"
+                        th:selected="${s == statusFiltro}">Situação</option>
+            </select>
+            <button class="btn btn-escuro" type="submit">Filtrar</button>
+            <a class="btn btn-secundario" th:href="@{/recepcao/ordens}">Limpar</a>
+        </form>
+
+        <div th:replace="~{fragments/ordens :: tabela(${ordens}, false)}"></div>
+    </div>
+</main>
+</body>
+</html>

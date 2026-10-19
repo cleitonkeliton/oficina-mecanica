@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html lang="pt-BR" xmlns:th="http://www.thymeleaf.org"
+      xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<!--/* Pedaços reaproveitados por todas as páginas */-->
+
+<head th:fragment="head(titulo)">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title th:text="${titulo} + ' · ' + ${site.nomeOficina}">Oficina</title>
+    <meta name="description" th:if="${site.slogan}" th:content="${site.slogan}">
+    <link rel="icon" type="image/svg+xml" th:href="@{/img/favicon.svg}">
+    <link rel="stylesheet" th:href="@{/css/style.css}">
+    <script th:src="@{/js/app.js}" defer></script>
+</head>
+
+<body>
+
+<!--/* Ícone da oficina (chave inglesa) */-->
+<span th:fragment="logo" class="logo" aria-hidden="true">
+    <svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76z"/>
+    </svg>
+</span>
+
+<!--/* Mensagens de sucesso/erro depois de salvar algo */-->
+<th:block th:fragment="flash">
+    <div class="alerta alerta-sucesso" role="status" th:if="${sucesso}" th:text="${sucesso}">Salvo.</div>
+    <div class="alerta alerta-erro" role="alert" th:if="${erro}" th:text="${erro}">Erro.</div>
+</th:block>
+
+<!--/* Topo e menu da equipe (administrador e recepção) */-->
+<th:block th:fragment="equipe(ativo)">
+    <header class="app-topo">
+        <div class="container">
+            <a class="marca" th:href="@{/}">
+                <span th:replace="~{fragments/layout :: logo}"></span>
+                <span>
+                    <span th:text="${site.nomeOficina}">Oficina</span>
+                    <small sec:authorize="hasRole('ADMIN')">Administração</small>
+                    <small sec:authorize="hasRole('RECEPCAO')">Recepção</small>
+                </span>
+            </a>
+            <div class="app-usuario">
+                <span>Olá, <strong sec:authentication="principal.primeiroNome">Usuário</strong></span>
+                <a th:href="@{/conta/senha}">Trocar senha</a>
+                <form th:action="@{/logout}" method="post">
+                    <button class="btn-sair" type="submit">Sair</button>
+                </form>
+            </div>
+        </div>
+    </header>
+    <nav class="app-nav" aria-label="Menu da equipe">
+        <div class="container">
+            <a sec:authorize="hasRole('ADMIN')" th:href="@{/admin}" th:classappend="${ativo == 'admin'} ? 'ativo'">Painel</a>
+            <a th:href="@{/recepcao}" th:classappend="${ativo == 'recepcao'} ? 'ativo'">Carros na oficina</a>
+            <a th:href="@{/recepcao/entrada}" th:classappend="${ativo == 'entrada'} ? 'ativo'">Registrar entrada</a>
+            <a th:href="@{/recepcao/ordens}" th:classappend="${ativo == 'ordens'} ? 'ativo'">Ordens de serviço</a>
+            <a th:href="@{/recepcao/clientes}" th:classappend="${ativo == 'clientes'} ? 'ativo'">Clientes</a>
+            <a th:href="@{/recepcao/veiculos}" th:classappend="${ativo == 'veiculos'} ? 'ativo'">Veículos</a>
+            <th:block sec:authorize="hasRole('ADMIN')">
+                <span class="separador" aria-hidden="true"></span>
+                <a th:href="@{/admin/servicos}" th:classappend="${ativo == 'servicos'} ? 'ativo'">Serviços e preços</a>
+                <a th:href="@{/admin/site}" th:classappend="${ativo == 'site'} ? 'ativo'">Informações do site</a>
+                <a th:href="@{/admin/usuarios}" th:classappend="${ativo == 'usuarios'} ? 'ativo'">Usuários</a>
+            </th:block>
+            <span class="separador" aria-hidden="true"></span>
+            <a th:href="@{/}" target="_blank" rel="noopener">Ver site ↗</a>
+        </div>
+    </nav>
+</th:block>
+
+<!--/* Topo da área do cliente (dono do carro) */-->
+<header th:fragment="cliente" class="app-topo">
+    <div class="container">
+        <a class="marca" th:href="@{/area-cliente}">
+            <span th:replace="~{fragments/layout :: logo}"></span>
+            <span>
+                <span th:text="${site.nomeOficina}">Oficina</span>
+                <small>Acompanhe seu carro</small>
+            </span>
+        </a>
+        <div class="app-usuario">
+            <span>Olá, <strong sec:authentication="principal.primeiroNome">Cliente</strong></span>
+            <a th:href="@{/}">Site da oficina</a>
+            <a th:href="@{/conta/senha}">Trocar senha</a>
+            <form th:action="@{/logout}" method="post">
+                <button class="btn-sair" type="submit">Sair</button>
+            </form>
+        </div>
+    </div>
+</header>
+
+<!--/* Selo colorido com a situação do carro */-->
+<span th:fragment="status(s)" class="badge" th:classappend="${s.css}" th:text="${s.descricao}">Situação</span>
+
+<!--/* Barra de etapas que o cliente vê */-->
+<ol th:fragment="etapas(ordem)" class="etapas" aria-label="Andamento do serviço"
+    th:with="etapa=${ordem.status.etapa}">
+    <li th:each="nome, i : ${ {'Recebido', 'Orçamento', 'Manutenção', 'Pronto', 'Entregue'} }"
+        th:classappend="|${etapa >= i.count ? 'feita' : ''} ${etapa == i.count ? 'atual' : ''}|"
+        th:text="${nome}">Etapa</li>
+</ol>
+
+</body>
+</html>
