@@ -2,6 +2,7 @@ package com.oficina.api.service;
 
 import com.oficina.api.model.Servico;
 import com.oficina.api.repository.ServicoRepository;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -17,7 +18,12 @@ public class ServicoService {
     }
 
     public List<Servico> listarTodos() {
-        return repository.findAll();
+        return repository.findAll(Sort.by("id"));
+    }
+
+    // Serviços exibidos na página principal
+    public List<Servico> listarVisiveis() {
+        return listarTodos().stream().filter(Servico::isVisivel).toList();
     }
 
     public Optional<Servico> buscarPorId(Long id) {

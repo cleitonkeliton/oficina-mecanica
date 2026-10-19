@@ -1,0 +1,122 @@
+<!DOCTYPE html>
+<html lang="pt-BR" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Ordens de serviço · Administração</title>
+    <link rel="stylesheet" th:href="@{/css/site.css}">
+</head>
+<body class="admin">
+
+<header class="topo">
+    <div class="container">
+        <a class="marca" th:href="@{/admin}">Administração</a>
+        <nav class="acoes">
+            <a th:href="@{/admin}">Site e serviços</a>
+            <a th:href="@{/admin/clientes}">Clientes</a>
+            <a th:href="@{/admin/ordens}">Ordens de serviço</a>
+            <a th:href="@{/}" target="_blank">Ver site</a>
+            <form class="inline" th:action="@{/logout}" method="post">
+                <button class="botao pequeno secundario" type="submit">Sair</button>
+            </form>
+        </nav>
+    </div>
+</header>
+
+<div class="container">
+    <div class="alerta ok" th:if="${mensagem}" th:text="${mensagem}"></div>
+    <div class="alerta erro" th:if="${erro}" th:text="${erro}"></div>
+
+    <section>
+        <h2>Ordens de serviço</h2>
+        <p style="color:var(--cor-suave);margin-top:-12px">
+            O cliente vê a situação das ordens em andamento e os serviços das ordens entregues na Área do cliente.
+        </p>
+        <div class="painel tabela-wrap">
+            <table>
+                <thead>
+                <tr>
+                    <th>Veículo</th>
+                    <th>Cliente</th>
+                    <th>Situação</th>
+                    <th></th>
+                </tr>
+                </thead>
+                <tbody>
+                <tr th:each="o : ${ordens}">
+                    <td>
+                        <strong th:text="${o.veiculo?.placa}"></strong><br>
+                        <small th:text="${#strings.trim((o.veiculo?.marca ?: '') + ' ' + (o.veiculo?.modelo ?: ''))}"></small>
+                    </td>
+                    <td>
+                        <span th:text="${o.cliente?.nome}"></span><br>
+                        <small th:text="${o.cliente?.telefone}"></small>
+                    </td>
+                    <td>
+                        <span th:text="${o.status}"></span><br>
+                        <small th:if="${o.previsaoEntrega}" th:text="'Previsão: ' + ${#temporals.format(o.previsaoEntrega, 'dd/MM/yyyy')}"></small>
+                    </td>
+                    <td>
+                        <div class="acoes">
+                            <a class="botao pequeno secundario" th:href="@{/admin/ordens/{id}/editar(id=${o.id})}">Atualizar</a>
+                            <form class="inline" th:action="@{/admin/ordens/{id}/excluir(id=${o.id})}" method="post"
+                                  onsubmit="return confirm('Excluir esta ordem de serviço?');">
+                                <button class="botao pequeno perigo" type="submit">Excluir</button>
+                            </form>
+                        </div>
+                    </td>
+                </tr>
+                <tr th:if="${ordens.isEmpty()}">
+                    <td colspan="4" class="vazio">Nenhuma ordem de serviço ainda.</td>
+                </tr>
+                </tbody>
+            </table>
+        </div>
+    </section>
+
+    <section id="form-ordem">
+        <h2 th:text="${ordem.id == null} ? 'Nova ordem de serviço' : 'Atualizar ordem de serviço'">Nova ordem de serviço</h2>
+        <form class="painel formulario" th:action="@{/admin/ordens}" th:object="${ordem}" method="post">
+            <input type="hidden" th:field="*{id}">
+            <div class="inteiro">
+                <label for="veiculoId">Veículo</label>
+                <select th:field="*{veiculoId}" required>
+                    <option value="">Escolha o veículo</option>
+                    <option th:each="v : ${veiculos}" th:value="${v.id}"
+                            th:text="${v.placa} + ' · ' + ${#strings.trim((v.marca ?: '') + ' ' + (v.modelo ?: ''))} + ' · ' + ${v.cliente?.nome}"></option>
+                </select>
+                <small>Cliente novo? <a th:href="@{/admin/clientes}">Cadastre o cliente e o carro</a> antes.</small>
+            </div>
+            <div>
+                <label for="status">Situação</label>
+                <select th:field="*{status}">
+                    <option th:each="s : ${statusOpcoes}" th:value="${s}" th:text="${s}"></option>
+                </select>
+            </div>
+            <div>
+                <label for="previsaoEntrega">Previsão de entrega</label>
+                <input type="date" th:field="*{previsaoEntrega}">
+            </div>
+            <div class="inteiro" th:if="${!servicos.isEmpty()}">
+                <label>Serviços</label>
+                <div class="lista-checks">
+                    <label th:each="s : ${servicos}">
+                        <input type="checkbox" th:field="*{servicoIds}" th:value="${s.id}">
+                        <span th:text="${s.nome != null ? s.nome : s.descricao}"></span>
+                    </label>
+                </div>
+            </div>
+            <div class="inteiro">
+                <label for="observacoes">Observações para o cliente</label>
+                <textarea th:field="*{observacoes}" placeholder="Ex.: aguardando chegada da peça"></textarea>
+            </div>
+            <div class="inteiro acoes">
+                <button class="botao" type="submit" th:text="${ordem.id == null} ? 'Criar ordem' : 'Salvar alterações'">Criar ordem</button>
+                <a class="botao secundario" th:if="${ordem.id != null}" th:href="@{/admin/ordens}">Cancelar</a>
+            </div>
+        </form>
+    </section>
+</div>
+
+</body>
+</html>
