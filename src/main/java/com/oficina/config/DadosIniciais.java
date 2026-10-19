@@ -44,6 +44,10 @@ public class DadosIniciais implements ApplicationRunner {
     @Override
     public void run(ApplicationArguments args) {
         configuracaoService.criarPadraoSeNaoExistir();
+        int antigos = servicoService.ajustarServicosAntigos();
+        if (antigos > 0) {
+            log.info("{} serviço(s) da versão antiga ajustado(s) para aparecer no site.", antigos);
+        }
         servicoService.criarPadraoSeVazio();
 
         if (usuarioService.criarInicialSeNaoExistir(Perfil.ADMIN, adminLogin, adminSenha, "Administrador")) {

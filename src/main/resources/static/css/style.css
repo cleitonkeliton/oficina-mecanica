@@ -217,7 +217,7 @@ a.stat:hover { border-color: var(--primaria); color: inherit; }
 .chip.ativo .qtd { background: rgba(255, 255, 255, .2); color: #fff; }
 
 /* ---------- Progresso do carro (visto pelo cliente) ---------- */
-.etapas { list-style: none; margin: 16px 0 8px; padding: 0; display: grid; grid-template-columns: repeat(5, 1fr); position: relative; }
+.etapas { list-style: none; margin: 16px 0 8px; padding: 0; display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); position: relative; }
 .etapas li { position: relative; text-align: center; font-size: .8rem; color: var(--texto-fraco); font-weight: 600; padding-top: 34px; }
 .etapas li::before {
     content: ""; position: absolute; top: 4px; left: 50%; transform: translateX(-50%);
@@ -229,7 +229,7 @@ a.stat:hover { border-color: var(--primaria); color: inherit; }
 .etapas li.feita::before { background: var(--primaria); border-color: var(--primaria); }
 .etapas li.feita::after { background: var(--primaria); }
 .etapas li.atual::before { box-shadow: 0 0 0 5px rgba(234, 88, 12, .2); }
-@media (max-width: 520px) { .etapas li { font-size: .64rem; padding-left: 2px; padding-right: 2px; overflow-wrap: anywhere; line-height: 1.25; } }
+@media (max-width: 520px) { .etapas li { font-size: .62rem; padding-left: 1px; padding-right: 1px; overflow-wrap: anywhere; hyphens: auto; line-height: 1.25; } }
 
 /* ---------- Linha do tempo ---------- */
 .timeline { list-style: none; margin: 0; padding: 0; position: relative; }
@@ -358,8 +358,8 @@ a.stat:hover { border-color: var(--primaria); color: inherit; }
 .pagina-titulo p { margin: 4px 0 0; color: var(--texto-suave); }
 .voltar { display: inline-block; margin-bottom: 8px; font-size: .9rem; font-weight: 600; text-decoration: none; }
 
-.status-rapido { display: flex; gap: 6px; align-items: center; margin: 0; }
-.status-rapido select { width: auto; max-width: 190px; padding: 6px 8px; font-size: .85rem; }
+.status-rapido { display: flex; gap: 6px; align-items: center; margin: 8px 0 0; }
+.status-rapido select { width: auto; max-width: 200px; padding: 5px 8px; font-size: .82rem; }
 
 .servicos-checks { display: grid; gap: 8px; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); }
 .servicos-checks .check { border: 1px solid var(--borda); border-radius: var(--raio-sm); padding: 10px 12px; background: var(--superficie); justify-content: space-between; }

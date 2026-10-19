@@ -72,6 +72,27 @@ public class ServicoService {
         return true;
     }
 
+    /**
+     * Serviços cadastrados pela versão antiga do sistema só tinham descrição e preço.
+     * A descrição vira o nome e eles voltam a aparecer no site.
+     */
+    @Transactional
+    public int ajustarServicosAntigos() {
+        int ajustados = 0;
+        for (Servico s : repository.findAll()) {
+            if (s.getNome() == null || s.getNome().isBlank()) {
+                String descricao = s.getDescricao() == null || s.getDescricao().isBlank() ? "Serviço" : s.getDescricao().trim();
+                s.setNome(descricao.length() > 100 ? descricao.substring(0, 100) : descricao);
+                s.setAtivo(true);
+                if (s.getPreco() == null) {
+                    s.setPreco(BigDecimal.ZERO);
+                }
+                ajustados++;
+            }
+        }
+        return ajustados;
+    }
+
     @Transactional
     public void criarPadraoSeVazio() {
         if (repository.count() > 0) {

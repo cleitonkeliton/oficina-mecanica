@@ -27,7 +27,7 @@ Precisa de **Java 21 ou mais novo** (o projeto também roda no JDK 24), **Maven*
    GRANT ALL PRIVILEGES ON oficina_mecanica.* TO 'usuario_oficina'@'localhost';
    ```
 
-   As tabelas são criadas automaticamente quando o sistema sobe.
+   As tabelas são criadas automaticamente quando o sistema sobe. Se o banco já tinha as tabelas da versão anterior, elas são aproveitadas: clientes e serviços continuam lá (os serviços antigos passam a usar a descrição como nome). As tabelas antigas `veiculo`, `ordem_servico` e `ordem_servico_servico` não são mais usadas.
 
 2. Rode o sistema:
 
