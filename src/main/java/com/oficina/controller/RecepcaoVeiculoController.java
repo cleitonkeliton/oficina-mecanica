@@ -61,11 +61,17 @@ public class RecepcaoVeiculoController {
         return "recepcao/veiculo-form";
     }
 
+    /** Edição do veículo. Com clienteId (vindo do cadastro de um cliente novo), já deixa o novo dono escolhido. */
     @GetMapping("/{id}")
-    public String editar(@PathVariable Long id, Model model) {
+    public String editar(@PathVariable Long id, @RequestParam(required = false) Long clienteId, Model model) {
         Veiculo veiculo = veiculoService.buscar(id);
-        model.addAttribute("veiculoForm", VeiculoForm.de(veiculo));
-        model.addAttribute("ordens", ordemService.listarDoVeiculo(id));
+        VeiculoForm form = VeiculoForm.de(veiculo);
+        if (clienteId != null && !clienteId.equals(form.getClienteId())) {
+            form.setClienteId(clienteId);
+            model.addAttribute("aviso", "Novo dono selecionado. Clique em Salvar veículo para confirmar a troca.");
+        }
+        model.addAttribute("veiculoForm", form);
+        prepararEdicao(model, veiculo);
         prepararFormulario(model);
         return "recepcao/veiculo-form";
     }
@@ -88,7 +94,7 @@ public class RecepcaoVeiculoController {
         }
         model.addAttribute("voltar", voltar);
         if (form.getId() != null) {
-            model.addAttribute("ordens", ordemService.listarDoVeiculo(form.getId()));
+            prepararEdicao(model, veiculoService.buscar(form.getId()));
         }
         prepararFormulario(model);
         return "recepcao/veiculo-form";
@@ -104,6 +110,12 @@ public class RecepcaoVeiculoController {
             redirect.addFlashAttribute("erro", e.getMessage());
             return "redirect:/recepcao/veiculos/" + id;
         }
+    }
+
+    /** Dados do veículo como estão salvos (o formulário pode ter sido alterado e ter erro). */
+    private void prepararEdicao(Model model, Veiculo veiculo) {
+        model.addAttribute("veiculoSalvo", veiculo);
+        model.addAttribute("ordens", ordemService.listarDoVeiculo(veiculo.getId()));
     }
 
     private void prepararFormulario(Model model) {

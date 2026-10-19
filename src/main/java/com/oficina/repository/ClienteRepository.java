@@ -24,6 +24,8 @@ public interface ClienteRepository extends JpaRepository<Cliente, Long> {
             where lower(c.nome) like lower(concat('%', :termo, '%'))
                or (:digitos <> '' and c.cpf like concat('%', :digitos, '%'))
                or c.telefone like concat('%', :termo, '%')
+               or (:digitos <> '' and replace(replace(replace(replace(c.telefone, '(', ''), ')', ''), '-', ''), ' ', '')
+                   like concat('%', :digitos, '%'))
             order by c.nome
             """)
     List<Cliente> pesquisar(@Param("termo") String termo, @Param("digitos") String digitos);

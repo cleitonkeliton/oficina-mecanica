@@ -48,6 +48,13 @@ public class VeiculoService {
                 .orElseThrow(() -> new NaoEncontradoException("Veículo não encontrado"));
     }
 
+    /** Para usar dentro de outra transação: segura o veículo até ela terminar. */
+    @Transactional
+    public Veiculo buscarTravando(Long id) {
+        return repository.buscarTravando(id)
+                .orElseThrow(() -> new NaoEncontradoException("Veículo não encontrado"));
+    }
+
     @Transactional(readOnly = true)
     public Optional<Veiculo> buscarPorPlaca(String placa) {
         return repository.findByPlaca(Documentos.normalizarPlaca(placa));
@@ -67,6 +74,11 @@ public class VeiculoService {
         }
 
         Veiculo veiculo = form.getId() == null ? new Veiculo() : buscar(form.getId());
+        boolean trocouDono = veiculo.getCliente() != null && !veiculo.getCliente().getId().equals(form.getClienteId());
+        if (trocouDono && ordemRepository.existsByVeiculoIdAndStatusNotIn(veiculo.getId(), OrdemServicoService.FINALIZADOS)) {
+            throw new RegraNegocioException("clienteId",
+                    "Este veículo está na oficina. Entregue ou cancele a ordem de serviço antes de trocar o dono.");
+        }
         veiculo.setPlaca(placa);
         veiculo.setMarca(limpar(form.getMarca()));
         veiculo.setModelo(limpar(form.getModelo()));

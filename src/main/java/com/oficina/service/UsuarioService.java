@@ -8,6 +8,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.nio.charset.StandardCharsets;
 import java.util.List;
 import java.util.Locale;
 
@@ -37,9 +38,10 @@ public class UsuarioService {
         if (!login.matches("[a-z0-9._-]{3,60}")) {
             throw new RegraNegocioException("login", "Use só letras sem acento, números, ponto, hífen ou sublinhado");
         }
-        if (login.matches("\\d+")) {
+        if (login.matches("[\\d.\\-]+")) {
             throw new RegraNegocioException("login", "O login da equipe não pode ter só números (fica parecido com CPF)");
         }
+        validarSenha("senha", form.getSenha());
         if (repository.existsByLogin(login)) {
             throw new RegraNegocioException("login", "Este login já está em uso");
         }
@@ -67,9 +69,9 @@ public class UsuarioService {
         usuario.setSenhaHash(passwordEncoder.encode(novaSenha));
     }
 
-    /** Qualquer usuário logado troca a própria senha informando a atual. */
+    /** Qualquer usuário logado troca a própria senha informando a atual. Devolve o usuário atualizado. */
     @Transactional
-    public void alterarPropriaSenha(Long idLogado, String senhaAtual, String novaSenha, String confirmacao) {
+    public Usuario alterarPropriaSenha(Long idLogado, String senhaAtual, String novaSenha, String confirmacao) {
         Usuario usuario = repository.findById(idLogado)
                 .orElseThrow(() -> new NaoEncontradoException("Usuário não encontrado"));
         if (!passwordEncoder.matches(senhaAtual, usuario.getSenhaHash())) {
@@ -80,6 +82,7 @@ public class UsuarioService {
         }
         validarSenha(novaSenha);
         usuario.setSenhaHash(passwordEncoder.encode(novaSenha));
+        return usuario;
     }
 
     /** Cria o usuário inicial, se ainda não existir ninguém com aquele perfil. Retorna true se criou. */
@@ -102,8 +105,16 @@ public class UsuarioService {
     }
 
     private void validarSenha(String senha) {
+        validarSenha("novaSenha", senha);
+    }
+
+    /** Mesmas regras para todas as senhas: 6 a 60 caracteres e no máximo 72 bytes (limite do BCrypt). */
+    static void validarSenha(String campo, String senha) {
         if (senha == null || senha.length() < 6 || senha.length() > 60) {
-            throw new RegraNegocioException("novaSenha", "A senha deve ter de 6 a 60 caracteres");
+            throw new RegraNegocioException(campo, "A senha deve ter de 6 a 60 caracteres");
+        }
+        if (senha.getBytes(StandardCharsets.UTF_8).length > 72) {
+            throw new RegraNegocioException(campo, "Senha muito longa. Use menos caracteres especiais ou emojis");
         }
     }
 }

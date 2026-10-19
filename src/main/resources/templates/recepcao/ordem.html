@@ -152,7 +152,7 @@
                                 </div>
                                 <div class="campo" th:classappend="${#fields.hasErrors('previsaoEntrega')} ? 'campo-erro'">
                                     <label for="previsaoEntrega">Previsão de entrega</label>
-                                    <input type="date" id="previsaoEntrega" th:field="*{previsaoEntrega}">
+                                    <input type="date" id="previsaoEntrega" th:field="*{previsaoEntrega}" th:min="${#temporals.format(ordem.dataEntrada, 'yyyy-MM-dd')}">
                                     <span class="erro-campo" th:errors="*{previsaoEntrega}"></span>
                                 </div>
                             </div>

@@ -10,7 +10,12 @@ import com.oficina.repository.OrdemServicoRepository;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
+import com.oficina.form.ItemForm;
+import com.oficina.form.OrdemDadosForm;
+
 import java.math.BigDecimal;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 
@@ -39,6 +44,7 @@ class OrdemServicoServiceTest {
         veiculo = new Veiculo("ABC1D23", "Chevrolet", "Onix", 2020, "Prata", cliente);
         veiculo.setId(10L);
         when(veiculoService.buscar(10L)).thenReturn(veiculo);
+        when(veiculoService.buscarTravando(10L)).thenReturn(veiculo);
         when(repository.save(any(OrdemServico.class))).thenAnswer(i -> i.getArgument(0));
     }
 
@@ -55,7 +61,9 @@ class OrdemServicoServiceTest {
         o.setVeiculo(veiculo);
         o.setCliente(veiculo.getCliente());
         o.setStatus(status);
+        o.setDataEntrada(LocalDateTime.now().minusDays(1));
         when(repository.findById(5L)).thenReturn(Optional.of(o));
+        when(repository.buscarTravando(5L)).thenReturn(Optional.of(o));
         return o;
     }
 
@@ -157,5 +165,46 @@ class OrdemServicoServiceTest {
         assertNotNull(service.buscarDoCliente(5L, 1L));
         assertThrows(NaoEncontradoException.class, () -> service.buscarDoCliente(5L, 2L));
         assertThrows(NaoEncontradoException.class, () -> service.buscarDoCliente(5L, null));
+    }
+
+    @Test
+    void recadoNumaOrdemEntregueNaoMudaADataDeEntrega() {
+        OrdemServico ordem = ordemCom(StatusServico.PRONTO);
+        service.atualizarStatus(5L, StatusServico.ENTREGUE, null, "Ana");
+        LocalDateTime entrega = ordem.getDataEntrega();
+
+        service.atualizarStatus(5L, StatusServico.ENTREGUE, "Cliente ligou agradecendo", "Ana");
+
+        assertEquals(entrega, ordem.getDataEntrega());
+        assertEquals(2, ordem.getHistorico().size());
+    }
+
+    @Test
+    void servicoOcultoNaoPodeSerLancado() {
+        ordemCom(StatusServico.EM_SERVICO);
+        servico(1L, "Serviço antigo", "50.00").setAtivo(false);
+
+        assertThrows(RegraNegocioException.class, () -> service.adicionarServico(5L, 1L));
+    }
+
+    @Test
+    void previsaoAntesDaEntradaEhRecusada() {
+        ordemCom(StatusServico.EM_SERVICO);
+        OrdemDadosForm form = new OrdemDadosForm();
+        form.setPrevisaoEntrega(LocalDate.now().minusDays(10));
+
+        RegraNegocioException e = assertThrows(RegraNegocioException.class, () -> service.atualizarDados(5L, form));
+        assertEquals("previsaoEntrega", e.getCampo());
+    }
+
+    @Test
+    void totalAbsurdoEhRecusado() {
+        ordemCom(StatusServico.EM_SERVICO);
+        ItemForm item = new ItemForm();
+        item.setDescricao("Motor novo");
+        item.setQuantidade(999);
+        item.setValorUnitario(new BigDecimal("999999.99"));
+
+        assertThrows(RegraNegocioException.class, () -> service.adicionarItem(5L, item));
     }
 }

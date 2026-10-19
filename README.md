@@ -52,7 +52,9 @@ Na primeira vez, o sistema cria o texto padrão do site, alguns serviços de exe
 
 ### Acesso do cliente
 
-No cadastro do cliente (Recepção → Clientes), preencha a senha de acesso ou use o botão "Gerar senha". O cliente entra em "Acompanhar meu carro" com o **CPF** e essa senha.
+No cadastro do cliente (Recepção → Clientes), preencha a senha de acesso ou use o botão "Gerar senha" (8 letras e números). O cliente entra em "Acompanhar meu carro" com o **CPF** e essa senha.
+
+Se a recepção remover o acesso ou trocar a senha, a sessão que o cliente tiver aberta cai na hora. O mesmo vale para usuários da equipe desativados ou com a senha redefinida pelo administrador. Depois de 5 senhas erradas seguidas, aquele login fica bloqueado por 15 minutos.
 
 ### Configuração
 
@@ -65,6 +67,7 @@ Os dados do banco estão em `src/main/resources/application.properties`. Para tr
 | `DB_PASSWORD` | Senha do banco | `Qweasd@32` |
 | `PORT` | Porta do site | `8080` |
 | `ADMIN_SENHA` / `RECEPCAO_SENHA` | Senhas dos usuários criados no primeiro start | `admin123` / `recepcao123` |
+| `OFICINA_FUSO` | Fuso horário das datas e horas | `America/Sao_Paulo` |
 
 ## Testes
 
@@ -72,7 +75,7 @@ Os dados do banco estão em `src/main/resources/application.properties`. Para tr
 mvn test
 ```
 
-Os testes não precisam do MySQL: cobrem as regras de CPF e placa, as regras da ordem de serviço (entrada, mudança de situação, travas) e o controle de acesso de cada perfil.
+Os testes não precisam do MySQL: cobrem as regras de CPF e placa, as regras da ordem de serviço (entrada, mudança de situação, travas, limites), a troca de dono do veículo, o bloqueio de login e o controle de acesso e de sessão de cada perfil.
 
 ## Estrutura do código
 
@@ -96,4 +99,5 @@ src/main/resources
 - **Programação orientada a objetos**: entidades com encapsulamento (`Cliente`, `Veiculo`, `OrdemServico`), enums com comportamento (`StatusServico` sabe sua etapa e se está finalizado).
 - **Camadas**: controller (tela) → service (regras) → repository (banco).
 - **Tratamento de exceções**: `RegraNegocioException` leva a mensagem de erro até o campo certo do formulário.
-- **Segurança**: senhas criptografadas com BCrypt, proteção CSRF nos formulários, permissões por perfil, e o cliente só enxerga as próprias ordens.
+- **Segurança**: senhas criptografadas com BCrypt, proteção CSRF nos formulários, permissões por perfil, bloqueio após senhas erradas, sessão derrubada quando o acesso muda, e o cliente só enxerga as próprias ordens.
+- **Concorrência**: a ordem de serviço é travada enquanto alguém a altera, assim duas pessoas mexendo ao mesmo tempo não apagam a mudança uma da outra.

@@ -33,6 +33,8 @@
 *, *::before, *::after { box-sizing: border-box; }
 
 html { scroll-behavior: smooth; }
+/* Ao clicar num link do menu (#servicos, #contato...), o título não fica escondido sob o topo fixo */
+[id] { scroll-margin-top: 84px; }
 
 body {
     margin: 0;
@@ -160,7 +162,7 @@ input:focus, select:focus, textarea:focus { border-color: var(--primaria); }
 .busca input, .busca select { flex: 1 1 200px; width: auto; }
 
 /* ---------- Tabelas ---------- */
-.tabela-wrap { overflow-x: auto; border: 1px solid var(--borda); border-radius: var(--raio); background: var(--superficie); }
+.tabela-wrap { position: relative; overflow-x: auto; border: 1px solid var(--borda); border-radius: var(--raio); background: var(--superficie); }
 .tabela { width: 100%; border-collapse: collapse; font-size: .94rem; }
 .tabela th, .tabela td { padding: 12px 14px; text-align: left; border-bottom: 1px solid var(--borda); vertical-align: middle; }
 .tabela th { font-size: .78rem; text-transform: uppercase; letter-spacing: .04em; color: var(--texto-suave); background: #fafaf9; font-weight: 700; }
@@ -227,7 +229,7 @@ a.stat:hover { border-color: var(--primaria); color: inherit; }
 .etapas li.feita::before { background: var(--primaria); border-color: var(--primaria); }
 .etapas li.feita::after { background: var(--primaria); }
 .etapas li.atual::before { box-shadow: 0 0 0 5px rgba(234, 88, 12, .2); }
-@media (max-width: 520px) { .etapas li { font-size: .7rem; } }
+@media (max-width: 520px) { .etapas li { font-size: .64rem; padding-left: 2px; padding-right: 2px; overflow-wrap: anywhere; line-height: 1.25; } }
 
 /* ---------- Linha do tempo ---------- */
 .timeline { list-style: none; margin: 0; padding: 0; position: relative; }
@@ -381,6 +383,8 @@ a.stat:hover { border-color: var(--primaria); color: inherit; }
 details.caixa { border: 1px solid var(--borda); border-radius: var(--raio-sm); padding: 10px 14px; background: #fafaf9; }
 details.caixa summary { cursor: pointer; font-weight: 600; }
 details.caixa[open] summary { margin-bottom: 12px; }
+.tabela details.caixa[open] { min-width: 230px; }
+button[aria-disabled="true"] { opacity: .6; cursor: progress; }
 
 .erro-pagina { min-height: 70vh; display: grid; place-items: center; text-align: center; padding: 48px 16px; }
 .erro-pagina .codigo { font-size: 4rem; font-weight: 900; color: var(--primaria); line-height: 1; }

@@ -1,6 +1,8 @@
 package com.oficina.model;
 
 import jakarta.persistence.*;
+import org.hibernate.annotations.JdbcTypeCode;
+import org.hibernate.type.SqlTypes;
 
 import java.time.LocalDateTime;
 
@@ -27,6 +29,7 @@ public class Usuario {
     private String nome;
 
     @Enumerated(EnumType.STRING)
+    @JdbcTypeCode(SqlTypes.VARCHAR)
     @Column(length = 20, nullable = false)
     private Perfil perfil;
 

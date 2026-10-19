@@ -9,9 +9,12 @@
 
         <div class="pagina-titulo">
             <div>
-                <h1>Ordens de serviço</h1>
-                <p th:if="${statusFiltro == null and (q == null or q.isBlank())}">Mostrando as 100 mais recentes. Use a busca para encontrar ordens antigas.</p>
-                <p th:unless="${statusFiltro == null and (q == null or q.isBlank())}" th:text="${ordens.size()} + ' ordem(ns) encontrada(s).'">0</p>
+                <h1 th:text="${atrasados} ? 'Entregas atrasadas' : 'Ordens de serviço'">Ordens de serviço</h1>
+                <p th:if="${atrasados}">Carros na oficina com a previsão de entrega vencida.</p>
+                <th:block th:unless="${atrasados}">
+                    <p th:if="${statusFiltro == null and (q == null or q.isBlank())}">Mostrando as 100 mais recentes. Use a busca para encontrar ordens antigas.</p>
+                    <p th:unless="${statusFiltro == null and (q == null or q.isBlank())}" th:text="${ordens.size()} + ' ordem(ns) encontrada(s).'">0</p>
+                </th:block>
             </div>
             <a class="btn" th:href="@{/recepcao/entrada}">+ Registrar entrada</a>
         </div>

@@ -13,6 +13,9 @@
 
         <div class="alerta alerta-erro" role="alert" th:if="${param.erro}">Login ou senha incorretos (ou usuário desativado).</div>
         <div class="alerta alerta-sucesso" role="status" th:if="${param.saiu}">Você saiu do sistema.</div>
+        <div class="alerta alerta-erro" role="alert" th:if="${param.bloqueado}">Muitas tentativas erradas. Aguarde 15 minutos e tente de novo.</div>
+        <div class="alerta alerta-aviso" role="status" th:if="${param.expirou}">Sua sessão expirou. Entre novamente.</div>
+        <div class="alerta alerta-aviso" role="status" th:if="${param.encerrada}">Sua sessão foi encerrada (usuário desativado ou senha alterada). Entre novamente.</div>
 
         <form class="form" th:action="@{/login}" method="post">
             <div class="campo">

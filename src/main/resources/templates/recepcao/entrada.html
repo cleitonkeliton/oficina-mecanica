@@ -25,7 +25,7 @@
         </div>
 
         <!-- Placa ainda não cadastrada -->
-        <div class="card" th:if="${buscou and veiculo == null}">
+        <div class="card" th:if="${buscou == true and veiculo == null}">
             <h2>Placa <span class="placa" th:text="${placaNormalizada}">ABC1D23</span> não cadastrada</h2>
             <p class="muted">Cadastre o veículo. Se o dono ainda não for cliente, dá para cadastrá-lo pelo caminho.</p>
             <div class="acoes">
@@ -91,7 +91,7 @@
                         </div>
                         <div class="campo" th:classappend="${#fields.hasErrors('previsaoEntrega')} ? 'campo-erro'">
                             <label for="previsaoEntrega">Previsão de entrega</label>
-                            <input type="date" id="previsaoEntrega" th:field="*{previsaoEntrega}">
+                            <input type="date" id="previsaoEntrega" th:field="*{previsaoEntrega}" th:min="${#temporals.format(#temporals.createToday(), 'yyyy-MM-dd')}">
                             <span class="ajuda">Pode deixar em branco e definir depois do orçamento.</span>
                             <span class="erro-campo" th:errors="*{previsaoEntrega}"></span>
                         </div>

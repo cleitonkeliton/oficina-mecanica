@@ -53,6 +53,7 @@ public class AdminController {
         model.addAttribute("totalServicos", servicoService.listarAtivos().size());
         model.addAttribute("totalClientes", clienteService.contar());
         model.addAttribute("statusList", StatusServico.values());
+        model.addAttribute("voltarPara", "admin");
         return "admin/index";
     }
 

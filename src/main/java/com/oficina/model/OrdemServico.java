@@ -1,6 +1,8 @@
 package com.oficina.model;
 
 import jakarta.persistence.*;
+import org.hibernate.annotations.JdbcTypeCode;
+import org.hibernate.type.SqlTypes;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
@@ -19,6 +21,10 @@ public class OrdemServico {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
+    /** Impede que duas pessoas salvem a mesma ordem ao mesmo tempo e uma apague a mudança da outra. */
+    @Version
+    private long versao;
+
     @ManyToOne(optional = false)
     @JoinColumn(name = "veiculo_id", nullable = false)
     private Veiculo veiculo;
@@ -29,6 +35,7 @@ public class OrdemServico {
     private Cliente cliente;
 
     @Enumerated(EnumType.STRING)
+    @JdbcTypeCode(SqlTypes.VARCHAR)
     @Column(length = 30, nullable = false)
     private StatusServico status = StatusServico.AGUARDANDO_AVALIACAO;
 

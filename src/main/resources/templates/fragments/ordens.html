@@ -41,7 +41,7 @@
             <td class="num" th:text="${#numbers.formatCurrency(o.valorTotal)}">R$ 0,00</td>
             <td th:if="${rapido}">
                 <form class="status-rapido" th:action="@{/recepcao/ordens/{id}/status(id=${o.id})}" method="post">
-                    <input type="hidden" name="voltar" value="painel">
+                    <input type="hidden" name="voltar" th:value="${voltarPara} ?: 'painel'">
                     <label class="sr-only" th:for="'status-' + ${o.id}">Nova situação</label>
                     <select name="status" th:id="'status-' + ${o.id}">
                         <option th:each="s : ${statusList}" th:value="${s}" th:text="${s.descricao}"

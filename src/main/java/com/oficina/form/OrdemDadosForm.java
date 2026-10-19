@@ -1,6 +1,7 @@
 package com.oficina.form;
 
 import com.oficina.model.OrdemServico;
+import jakarta.validation.constraints.Max;
 import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.Size;
 import org.springframework.format.annotation.DateTimeFormat;
@@ -11,6 +12,7 @@ import java.time.LocalDate;
 public class OrdemDadosForm {
 
     @Min(value = 0, message = "Quilometragem inválida")
+    @Max(value = 9_999_999, message = "Quilometragem inválida")
     private Integer quilometragem;
 
     @Size(max = 2000, message = "Texto muito longo")

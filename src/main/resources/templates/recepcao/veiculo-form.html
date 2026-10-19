@@ -1,22 +1,24 @@
 <!DOCTYPE html>
 <html lang="pt-BR" xmlns:th="http://www.thymeleaf.org">
-<head th:replace="~{fragments/layout :: head(${veiculoForm.id == null} ? 'Novo veículo' : 'Veículo')}"></head>
+<head th:replace="~{fragments/layout :: head(${veiculoSalvo == null} ? 'Novo veículo' : 'Veículo ' + ${veiculoSalvo.placaFormatada})}"></head>
 <body>
 <th:block th:replace="~{fragments/layout :: equipe('veiculos')}"></th:block>
 <main class="app-conteudo">
-    <div class="container" th:classappend="${veiculoForm.id == null} ? 'container-estreito'">
+    <div class="container" th:classappend="${veiculoSalvo == null} ? 'container-estreito'">
         <a class="voltar" th:href="@{/recepcao/veiculos}">&larr; Veículos</a>
         <div th:replace="~{fragments/layout :: flash}"></div>
 
         <div class="pagina-titulo">
             <div>
-                <h1 th:text="${veiculoForm.id == null} ? 'Novo veículo' : 'Veículo ' + ${veiculoForm.placa}">Veículo</h1>
+                <h1 th:text="${veiculoSalvo == null} ? 'Novo veículo' : 'Veículo ' + ${veiculoSalvo.placaFormatada}">Veículo</h1>
                 <p th:if="${voltar == 'entrada'}">Depois de salvar, você volta para a entrada do carro.</p>
+                <p th:if="${veiculoSalvo != null}">Dono atual: <a th:href="@{/recepcao/clientes/{id}(id=${veiculoSalvo.cliente.id})}" th:text="${veiculoSalvo.cliente.nome}">Dono</a></p>
             </div>
-            <a class="btn" th:if="${veiculoForm.id != null}" th:href="@{/recepcao/entrada(placa=${veiculoForm.placa})}">Registrar entrada</a>
+            <a class="btn" th:if="${veiculoSalvo != null}" th:href="@{/recepcao/entrada(placa=${veiculoSalvo.placa})}">Registrar entrada</a>
         </div>
+        <div class="alerta alerta-aviso" role="status" th:if="${aviso}" th:text="${aviso}">Aviso</div>
 
-        <div th:class="${veiculoForm.id != null} ? 'grid grid-lateral' : ''">
+        <div th:class="${veiculoSalvo != null} ? 'grid grid-lateral' : ''">
             <div class="card mt-0">
                 <form class="form" th:action="@{/recepcao/veiculos}" th:object="${veiculoForm}" method="post">
                     <input type="hidden" th:field="*{id}">
@@ -30,7 +32,8 @@
                         </select>
                         <span class="ajuda">
                             Não está na lista?
-                            <a th:href="@{/recepcao/clientes/novo(voltar='veiculo', placa=*{placa})}">Cadastre um novo cliente</a>.
+                            <a th:if="${veiculoSalvo == null}" th:href="@{/recepcao/clientes/novo(voltar='veiculo', placa=*{placa})}">Cadastre um novo cliente</a>
+                            <a th:if="${veiculoSalvo != null}" th:href="@{/recepcao/clientes/novo(voltar='veiculo', placa=${veiculoSalvo.placa})}">Cadastre o novo dono</a>.
                         </span>
                         <span class="erro-campo" th:errors="*{clienteId}"></span>
                     </div>
@@ -73,7 +76,7 @@
                 </form>
             </div>
 
-            <aside th:if="${veiculoForm.id != null}">
+            <aside th:if="${veiculoSalvo != null}">
                 <section class="card mt-0">
                     <h3>Passagens pela oficina</h3>
                     <ul class="timeline" th:if="${ordens != null and !ordens.isEmpty()}">

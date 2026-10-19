@@ -21,8 +21,6 @@ import static com.oficina.util.Textos.limpar;
 @Service
 public class ClienteService {
 
-    public static final int TAMANHO_MINIMO_SENHA = 6;
-
     private final ClienteRepository repository;
     private final VeiculoRepository veiculoRepository;
     private final OrdemServicoRepository ordemRepository;
@@ -74,9 +72,8 @@ public class ClienteService {
             throw new RegraNegocioException("cpf", "Já existe um cliente com este CPF");
         }
         String senha = limpar(form.getSenhaAcesso());
-        if (senha != null && senha.length() < TAMANHO_MINIMO_SENHA) {
-            throw new RegraNegocioException("senhaAcesso",
-                    "A senha deve ter pelo menos " + TAMANHO_MINIMO_SENHA + " caracteres");
+        if (senha != null) {
+            UsuarioService.validarSenha("senhaAcesso", senha);
         }
 
         Cliente cliente = form.getId() == null ? new Cliente() : buscar(form.getId());
@@ -105,10 +102,7 @@ public class ClienteService {
     /** Cria (ou troca a senha do) acesso do cliente à área de acompanhamento. Login = CPF. */
     @Transactional
     public void definirAcesso(Cliente cliente, String senha) {
-        if (senha == null || senha.trim().length() < TAMANHO_MINIMO_SENHA) {
-            throw new RegraNegocioException("senhaAcesso",
-                    "A senha deve ter pelo menos " + TAMANHO_MINIMO_SENHA + " caracteres");
-        }
+        UsuarioService.validarSenha("senhaAcesso", senha == null ? null : senha.trim());
         Usuario usuario = usuarioRepository.findByClienteId(cliente.getId()).orElseGet(() -> {
             verificarLoginLivre(cliente.getCpf());
             Usuario novo = new Usuario(cliente.getCpf(), null, cliente.getNome(), Perfil.CLIENTE);

@@ -14,6 +14,8 @@ import com.oficina.util.Documentos;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.math.BigDecimal;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.EnumMap;
 import java.util.EnumSet;
@@ -28,6 +30,9 @@ public class OrdemServicoService {
 
     /** Situações em que o carro já saiu da oficina. */
     public static final Set<StatusServico> FINALIZADOS = EnumSet.of(StatusServico.ENTREGUE, StatusServico.CANCELADO);
+
+    /** Maior total aceito numa ordem (cabe com folga na coluna do banco). */
+    static final BigDecimal TOTAL_MAXIMO = new BigDecimal("9999999.99");
 
     private final OrdemServicoRepository repository;
     private final VeiculoService veiculoService;
@@ -45,6 +50,12 @@ public class OrdemServicoService {
     @Transactional(readOnly = true)
     public List<OrdemServico> listarNaOficina() {
         return repository.findByStatusNotInOrderByDataEntradaAsc(FINALIZADOS);
+    }
+
+    /** Carros na oficina com a previsão de entrega vencida. */
+    @Transactional(readOnly = true)
+    public List<OrdemServico> listarAtrasadas() {
+        return listarNaOficina().stream().filter(OrdemServico::isAtrasada).toList();
     }
 
     /**
@@ -110,11 +121,13 @@ public class OrdemServicoService {
     /** Registra a entrada do carro na oficina. */
     @Transactional
     public OrdemServico abrir(NovaOrdemForm form, String responsavel) {
-        Veiculo veiculo = veiculoService.buscar(form.getVeiculoId());
+        Veiculo veiculo = veiculoService.buscarTravando(form.getVeiculoId());
         OrdemServico aberta = buscarAbertaDoVeiculo(veiculo.getId());
         if (aberta != null) {
             throw new RegraNegocioException("Este veículo já está na oficina (" + aberta.getNumero() + ").");
         }
+
+        validarPrevisao(form.getPrevisaoEntrega(), LocalDate.now());
 
         OrdemServico ordem = new OrdemServico();
         ordem.setVeiculo(veiculo);
@@ -126,8 +139,9 @@ public class OrdemServicoService {
         ordem.setDataEntrada(LocalDateTime.now());
         if (form.getServicoIds() != null) {
             form.getServicoIds().stream().distinct().forEach(servicoId ->
-                    ordem.adicionarItem(ItemOrdemServico.doCatalogo(servicoService.buscar(servicoId))));
+                    ordem.adicionarItem(ItemOrdemServico.doCatalogo(servicoAtivo(servicoId))));
         }
+        validarTotal(ordem);
         ordem.registrarHistorico(new HistoricoStatus(StatusServico.AGUARDANDO_AVALIACAO,
                 "Veículo recebido na oficina.", responsavel));
         return repository.save(ordem);
@@ -142,7 +156,7 @@ public class OrdemServicoService {
         if (novo == null) {
             throw new RegraNegocioException("Selecione a nova situação");
         }
-        OrdemServico ordem = buscar(id);
+        OrdemServico ordem = buscarTravando(id);
         String obs = limpar(observacao);
         if (obs != null && obs.length() > 1000) {
             throw new RegraNegocioException("A observação pode ter no máximo 1000 caracteres");
@@ -158,23 +172,26 @@ public class OrdemServicoService {
             }
         }
 
-        LocalDateTime agora = LocalDateTime.now();
-        switch (novo) {
-            case ENTREGUE -> {
-                if (ordem.getDataConclusao() == null) ordem.setDataConclusao(agora);
-                ordem.setDataEntrega(agora);
+        // Só um recado novo na mesma situação não mexe nas datas
+        if (novo != ordem.getStatus()) {
+            LocalDateTime agora = LocalDateTime.now();
+            switch (novo) {
+                case ENTREGUE -> {
+                    if (ordem.getDataConclusao() == null) ordem.setDataConclusao(agora);
+                    ordem.setDataEntrega(agora);
+                }
+                case PRONTO -> {
+                    if (ordem.getDataConclusao() == null) ordem.setDataConclusao(agora);
+                    ordem.setDataEntrega(null);
+                }
+                case CANCELADO -> ordem.setDataEntrega(null);
+                default -> {
+                    ordem.setDataConclusao(null);
+                    ordem.setDataEntrega(null);
+                }
             }
-            case PRONTO -> {
-                if (ordem.getDataConclusao() == null) ordem.setDataConclusao(agora);
-                ordem.setDataEntrega(null);
-            }
-            case CANCELADO -> ordem.setDataEntrega(null);
-            default -> {
-                ordem.setDataConclusao(null);
-                ordem.setDataEntrega(null);
-            }
+            ordem.setStatus(novo);
         }
-        ordem.setStatus(novo);
         ordem.registrarHistorico(new HistoricoStatus(novo, obs, responsavel));
         return ordem;
     }
@@ -182,6 +199,7 @@ public class OrdemServicoService {
     @Transactional
     public OrdemServico atualizarDados(Long id, OrdemDadosForm form) {
         OrdemServico ordem = buscarEditavel(id);
+        validarPrevisao(form.getPrevisaoEntrega(), ordem.getDataEntrada().toLocalDate());
         ordem.setQuilometragem(form.getQuilometragem());
         ordem.setDescricaoProblema(limpar(form.getDescricaoProblema()));
         ordem.setObservacoes(limpar(form.getObservacoes()));
@@ -193,8 +211,8 @@ public class OrdemServicoService {
     @Transactional
     public OrdemServico adicionarServico(Long id, Long servicoId) {
         OrdemServico ordem = buscarEditavel(id);
-        Servico servico = servicoService.buscar(servicoId);
-        ordem.adicionarItem(ItemOrdemServico.doCatalogo(servico));
+        ordem.adicionarItem(ItemOrdemServico.doCatalogo(servicoAtivo(servicoId)));
+        validarTotal(ordem);
         return ordem;
     }
 
@@ -204,6 +222,7 @@ public class OrdemServicoService {
         OrdemServico ordem = buscarEditavel(id);
         ordem.adicionarItem(new ItemOrdemServico(null, limpar(form.getDescricao()),
                 form.getQuantidade(), form.getValorUnitario()));
+        validarTotal(ordem);
         return ordem;
     }
 
@@ -218,9 +237,41 @@ public class OrdemServicoService {
         return ordem;
     }
 
+    private Servico servicoAtivo(Long servicoId) {
+        Servico servico = servicoService.buscar(servicoId);
+        if (!servico.isAtivo()) {
+            throw new RegraNegocioException("O serviço \"" + servico.getNome() + "\" está oculto e não pode ser lançado.");
+        }
+        return servico;
+    }
+
+    /** A previsão não pode ser antes da entrada do carro nem absurdamente longe. */
+    private static void validarPrevisao(LocalDate previsao, LocalDate entrada) {
+        if (previsao == null) {
+            return;
+        }
+        if (previsao.isBefore(entrada)) {
+            throw new RegraNegocioException("previsaoEntrega", "A previsão não pode ser antes da entrada do carro");
+        }
+        if (previsao.isAfter(entrada.plusYears(1))) {
+            throw new RegraNegocioException("previsaoEntrega", "Previsão muito distante. Confira a data");
+        }
+    }
+
+    private static void validarTotal(OrdemServico ordem) {
+        if (ordem.getValorTotal().compareTo(TOTAL_MAXIMO) > 0) {
+            throw new RegraNegocioException("Valor total da ordem muito alto. Confira as quantidades e valores.");
+        }
+    }
+
+    private OrdemServico buscarTravando(Long id) {
+        return repository.buscarTravando(id)
+                .orElseThrow(() -> new NaoEncontradoException("Ordem de serviço não encontrada"));
+    }
+
     /** Ordem entregue ou cancelada fica travada; para mexer, reabra mudando a situação. */
     private OrdemServico buscarEditavel(Long id) {
-        OrdemServico ordem = buscar(id);
+        OrdemServico ordem = buscarTravando(id);
         if (ordem.getStatus().isFinalizado()) {
             throw new RegraNegocioException("Esta ordem está " + ordem.getStatus().getDescricao().toLowerCase()
                     + " e não pode ser alterada. Para mexer nela, mude a situação primeiro.");

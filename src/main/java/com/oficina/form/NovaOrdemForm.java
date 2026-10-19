@@ -1,5 +1,6 @@
 package com.oficina.form;
 
+import jakarta.validation.constraints.Max;
 import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
@@ -16,6 +17,7 @@ public class NovaOrdemForm {
     private Long veiculoId;
 
     @Min(value = 0, message = "Quilometragem inválida")
+    @Max(value = 9_999_999, message = "Quilometragem inválida")
     private Integer quilometragem;
 
     @Size(max = 2000, message = "Texto muito longo")

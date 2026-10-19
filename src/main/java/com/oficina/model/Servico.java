@@ -1,6 +1,7 @@
 package com.oficina.model;
 
 import jakarta.persistence.*;
+import jakarta.validation.constraints.DecimalMax;
 import jakarta.validation.constraints.DecimalMin;
 import jakarta.validation.constraints.Digits;
 import jakarta.validation.constraints.NotBlank;
@@ -28,7 +29,8 @@ public class Servico {
 
     @NotNull(message = "Informe o preço")
     @DecimalMin(value = "0.00", message = "O preço não pode ser negativo")
-    @Digits(integer = 8, fraction = 2, message = "Preço inválido")
+    @DecimalMax(value = "999999.99", message = "Preço muito alto")
+    @Digits(integer = 6, fraction = 2, message = "Use no máximo 2 casas decimais")
     @Column(precision = 10, scale = 2)
     private BigDecimal preco;
 

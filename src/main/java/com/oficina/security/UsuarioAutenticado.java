@@ -19,8 +19,14 @@ public class UsuarioAutenticado implements UserDetails {
     private final Perfil perfil;
     private final Long clienteId;
     private final boolean ativo;
+    private final boolean bloqueado;
 
     public UsuarioAutenticado(Usuario usuario) {
+        this(usuario, false);
+    }
+
+    /** "bloqueado" = errou a senha muitas vezes e está temporariamente impedido de entrar. */
+    public UsuarioAutenticado(Usuario usuario, boolean bloqueado) {
         this.id = usuario.getId();
         this.login = usuario.getLogin();
         this.senhaHash = usuario.getSenhaHash();
@@ -28,6 +34,7 @@ public class UsuarioAutenticado implements UserDetails {
         this.perfil = usuario.getPerfil();
         this.clienteId = usuario.getCliente() != null ? usuario.getCliente().getId() : null;
         this.ativo = usuario.isAtivo();
+        this.bloqueado = bloqueado;
     }
 
     public Long getId() { return id; }
@@ -55,4 +62,7 @@ public class UsuarioAutenticado implements UserDetails {
 
     @Override
     public boolean isEnabled() { return ativo; }
+
+    @Override
+    public boolean isAccountNonLocked() { return !bloqueado; }
 }

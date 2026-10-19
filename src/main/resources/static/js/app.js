@@ -26,17 +26,35 @@ document.addEventListener('DOMContentLoaded', function () {
         });
     });
 
-    // Botão "Gerar senha": preenche o campo indicado com 6 números aleatórios
+    // Botão "Gerar senha": 8 letras e números, sem os que se confundem (0/O, 1/l/I)
+    var CARACTERES = 'abcdefghjkmnpqrstuvwxyz23456789';
     document.querySelectorAll('[data-gerar-senha]').forEach(function (botao) {
         botao.addEventListener('click', function () {
             var campo = document.getElementById(botao.getAttribute('data-gerar-senha'));
             if (!campo) return;
-            var numeros = new Uint32Array(6);
+            var numeros = new Uint32Array(8);
             window.crypto.getRandomValues(numeros);
-            var senha = Array.prototype.map.call(numeros, function (n) { return n % 10; }).join('');
+            var senha = Array.prototype.map.call(numeros, function (n) { return CARACTERES[n % CARACTERES.length]; }).join('');
             campo.value = senha;
             campo.type = 'text';
             campo.focus();
+        });
+    });
+
+    // Evita enviar o mesmo formulário duas vezes (duplo clique)
+    document.querySelectorAll('form[method=post]').forEach(function (form) {
+        form.addEventListener('submit', function (e) {
+            if (e.defaultPrevented) return;
+            if (form.dataset.enviando) { e.preventDefault(); return; }
+            form.dataset.enviando = '1';
+            form.querySelectorAll('button[type=submit]').forEach(function (b) { b.setAttribute('aria-disabled', 'true'); });
+        });
+    });
+    // Ao voltar pelo navegador, libera os formulários de novo
+    window.addEventListener('pageshow', function () {
+        document.querySelectorAll('form[data-enviando]').forEach(function (form) {
+            delete form.dataset.enviando;
+            form.querySelectorAll('button[aria-disabled]').forEach(function (b) { b.removeAttribute('aria-disabled'); });
         });
     });
 

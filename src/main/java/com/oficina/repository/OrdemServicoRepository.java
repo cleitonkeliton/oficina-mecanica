@@ -2,14 +2,25 @@ package com.oficina.repository;
 
 import com.oficina.model.OrdemServico;
 import com.oficina.model.StatusServico;
+import jakarta.persistence.LockModeType;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Lock;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
 import java.util.Collection;
 import java.util.List;
+import java.util.Optional;
 
 public interface OrdemServicoRepository extends JpaRepository<OrdemServico, Long> {
+
+    /**
+     * Lê a ordem travando a linha até o fim da transação: duas pessoas alterando a mesma ordem
+     * ao mesmo tempo esperam uma pela outra, em vez de uma apagar a mudança da outra.
+     */
+    @Lock(LockModeType.PESSIMISTIC_WRITE)
+    @Query("select o from OrdemServico o where o.id = :id")
+    Optional<OrdemServico> buscarTravando(@Param("id") Long id);
 
     List<OrdemServico> findByStatusNotInOrderByDataEntradaAsc(Collection<StatusServico> status);
 

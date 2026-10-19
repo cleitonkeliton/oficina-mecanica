@@ -22,7 +22,7 @@
                     <span class="qtd" th:text="${contagem.get(s)}">0</span>
                 </a>
             </th:block>
-            <a class="chip" th:if="${totalAtrasados > 0}" th:href="@{/recepcao/ordens}" style="border-color: #fecaca; color: #b91c1c;">
+            <a class="chip" th:if="${totalAtrasados > 0}" th:href="@{/recepcao/ordens(atrasados=true)}" style="border-color: #fecaca; color: #b91c1c;">
                 <span>Atrasados</span><span class="qtd" th:text="${totalAtrasados}">0</span>
             </a>
         </div>

@@ -1,5 +1,6 @@
 package com.oficina.form;
 
+import jakarta.validation.constraints.DecimalMax;
 import jakarta.validation.constraints.DecimalMin;
 import jakarta.validation.constraints.Digits;
 import jakarta.validation.constraints.Max;
@@ -23,7 +24,8 @@ public class ItemForm {
 
     @NotNull(message = "Informe o valor")
     @DecimalMin(value = "0.00", message = "O valor não pode ser negativo")
-    @Digits(integer = 8, fraction = 2, message = "Valor inválido")
+    @DecimalMax(value = "999999.99", message = "Valor muito alto")
+    @Digits(integer = 6, fraction = 2, message = "Use no máximo 2 casas decimais")
     private BigDecimal valorUnitario;
 
     public String getDescricao() { return descricao; }

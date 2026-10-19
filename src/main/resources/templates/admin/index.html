@@ -27,7 +27,7 @@
                 <div class="valor" th:text="${totalProntos}">0</div>
                 <div class="rotulo">Prontos para retirada</div>
             </a>
-            <a class="stat stat-perigo" th:href="@{/recepcao}">
+            <a class="stat stat-perigo" th:href="@{/recepcao/ordens(atrasados=true)}">
                 <div class="valor" th:text="${totalAtrasados}">0</div>
                 <div class="rotulo">Com entrega atrasada</div>
             </a>

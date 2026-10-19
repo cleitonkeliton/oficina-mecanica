@@ -29,6 +29,7 @@ public class ConfiguracaoSite {
 
     /** Faixa de aviso/promoção no topo do site (opcional). */
     @Size(max = 300)
+    @Column(length = 300)
     private String mensagemDestaque;
 
     @Size(max = 5000)
@@ -46,9 +47,11 @@ public class ConfiguracaoSite {
     private String horarioFuncionamento;
 
     @Size(max = 300)
+    @Column(length = 300)
     private String formasPagamento;
 
     @Size(max = 300)
+    @Column(length = 300)
     private String endereco;
 
     @Size(max = 30)
@@ -62,13 +65,16 @@ public class ConfiguracaoSite {
     private String email;
 
     @Size(max = 300)
+    @Column(length = 300)
     private String instagram;
 
     @Size(max = 300)
+    @Column(length = 300)
     private String facebook;
 
     /** Link do Google Maps (ou outro) para o endereço. */
     @Size(max = 500)
+    @Column(length = 500)
     private String linkMapa;
 
     public ConfiguracaoSite() {}

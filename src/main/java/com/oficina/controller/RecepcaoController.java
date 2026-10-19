@@ -63,15 +63,18 @@ public class RecepcaoController {
         model.addAttribute("ordens", naOficina);
         model.addAttribute("contagem", ordemService.contagemPorStatus());
         model.addAttribute("totalAtrasados", naOficina.stream().filter(OrdemServico::isAtrasada).count());
+        model.addAttribute("voltarPara", "painel");
         return "recepcao/index";
     }
 
     @GetMapping("/ordens")
     public String ordens(@RequestParam(required = false) StatusServico status,
-                         @RequestParam(required = false) String q, Model model) {
-        model.addAttribute("ordens", ordemService.pesquisar(status, q));
-        model.addAttribute("statusFiltro", status);
-        model.addAttribute("q", q);
+                         @RequestParam(required = false) String q,
+                         @RequestParam(required = false) boolean atrasados, Model model) {
+        model.addAttribute("ordens", atrasados ? ordemService.listarAtrasadas() : ordemService.pesquisar(status, q));
+        model.addAttribute("statusFiltro", atrasados ? null : status);
+        model.addAttribute("q", atrasados ? null : q);
+        model.addAttribute("atrasados", atrasados);
         return "recepcao/ordens";
     }
 
@@ -79,6 +82,7 @@ public class RecepcaoController {
     @GetMapping("/entrada")
     public String entrada(@RequestParam(required = false) String placa, Model model) {
         model.addAttribute("placa", placa);
+        model.addAttribute("buscou", false);
         if (placa != null && !placa.isBlank()) {
             if (!Documentos.placaValida(placa)) {
                 model.addAttribute("erro", "Placa inválida. Use o formato ABC-1234 ou ABC1D23.");
@@ -139,6 +143,9 @@ public class RecepcaoController {
                     ordem.getNumero() + " (" + ordem.getVeiculo().getPlacaFormatada() + "): " + status.getDescricao() + ".");
         } catch (RegraNegocioException e) {
             redirect.addFlashAttribute("erro", e.getMessage());
+        }
+        if ("admin".equals(voltar)) {
+            return "redirect:/admin";
         }
         return "painel".equals(voltar) ? "redirect:/recepcao" : "redirect:/recepcao/ordens/" + id;
     }

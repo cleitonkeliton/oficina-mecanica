@@ -13,6 +13,9 @@
 
         <div class="alerta alerta-erro" role="alert" th:if="${param.erro}">CPF ou senha incorretos.</div>
         <div class="alerta alerta-sucesso" role="status" th:if="${param.saiu}">Você saiu da sua área.</div>
+        <div class="alerta alerta-erro" role="alert" th:if="${param.bloqueado}">Muitas tentativas erradas. Aguarde 15 minutos e tente de novo.</div>
+        <div class="alerta alerta-aviso" role="status" th:if="${param.expirou}">Sua sessão expirou. Entre novamente.</div>
+        <div class="alerta alerta-aviso" role="status" th:if="${param.encerrada}">Seu acesso foi alterado pela oficina. Entre novamente com a senha nova.</div>
 
         <form class="form" th:action="@{/login}" method="post">
             <input type="hidden" name="origem" value="cliente">

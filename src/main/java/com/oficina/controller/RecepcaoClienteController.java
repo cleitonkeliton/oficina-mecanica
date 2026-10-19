@@ -2,6 +2,7 @@ package com.oficina.controller;
 
 import com.oficina.form.ClienteForm;
 import com.oficina.model.Cliente;
+import com.oficina.model.Veiculo;
 import com.oficina.service.ClienteService;
 import com.oficina.service.OrdemServicoService;
 import com.oficina.service.RegraNegocioException;
@@ -87,6 +88,11 @@ public class RecepcaoClienteController {
                         ? " Acesso ao site: login " + cliente.getCpfFormatado() + " com a senha informada." : ""));
                 if (novo && "veiculo".equals(voltar)) {
                     String p = placaSegura(placa);
+                    Veiculo existente = p != null ? veiculoService.buscarPorPlaca(p).orElse(null) : null;
+                    if (existente != null) {
+                        // O carro já existe: volta para ele com o novo dono escolhido (falta só salvar)
+                        return "redirect:/recepcao/veiculos/" + existente.getId() + "?clienteId=" + cliente.getId();
+                    }
                     return "redirect:/recepcao/veiculos/novo?voltar=entrada&clienteId=" + cliente.getId()
                             + (p != null ? "&placa=" + p : "");
                 }
