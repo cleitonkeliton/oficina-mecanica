@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html lang="pt-BR" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/layout :: head('Meus carros')}"></head>
+<body>
+<header th:replace="~{fragments/layout :: cliente}"></header>
+<main class="app-conteudo">
+    <div class="container">
+        <div th:replace="~{fragments/layout :: flash}"></div>
+
+        <div class="pagina-titulo">
+            <div>
+                <h1>Olá, <span th:text="${cliente.nome}">Cliente</span></h1>
+                <p>Aqui você acompanha a situação dos seus carros na <span th:text="${site.nomeOficina}">oficina</span>.</p>
+            </div>
+            <a class="btn btn-whats" th:if="${site.whatsappLink}" th:href="${site.whatsappLink}" target="_blank" rel="noopener">Falar com a oficina</a>
+        </div>
+
+        <!-- Carros na oficina agora -->
+        <h2>Na oficina agora</h2>
+        <div class="card vazio" th:if="${abertas.isEmpty()}">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 17h14M6 17l1.5-5h9L18 17M7.5 12l1.2-3.5h6.6L16.5 12"/><circle cx="8" cy="17" r="1.6"/><circle cx="16" cy="17" r="1.6"/></svg>
+            <p class="mb-0">Nenhum carro seu está na oficina no momento.</p>
+        </div>
+
+        <article class="card cliente-ordem" th:each="o : ${abertas}" th:classappend="${o.status.name() == 'PRONTO'} ? 'pronto'">
+            <div class="topo">
+                <div>
+                    <p class="veiculo">
+                        <span th:text="${o.veiculo.descricao}">Carro</span>
+                        <span class="placa" th:text="${o.veiculo.placaFormatada}">ABC</span>
+                    </p>
+                    <span class="muted pequeno" th:text="${o.numero} + ' · entrada em ' + ${#temporals.format(o.dataEntrada, 'dd/MM/yyyy')}">OS</span>
+                </div>
+                <span th:replace="~{fragments/layout :: status(${o.status})}"></span>
+            </div>
+
+            <ol th:replace="~{fragments/layout :: etapas(${o})}"></ol>
+
+            <div class="alerta alerta-sucesso mb-0 espaco" th:if="${o.status.name() == 'PRONTO'}">
+                Seu carro está pronto! Pode vir buscar<th:block th:if="${!site.listaHorarios.isEmpty()}"> no nosso horário de atendimento</th:block>.
+            </div>
+            <div class="alerta alerta-aviso mb-0 espaco" th:if="${o.status.name() == 'AGUARDANDO_APROVACAO'}">
+                Estamos aguardando a sua aprovação do orçamento para continuar.
+            </div>
+
+            <dl class="dados espaco">
+                <dt>Previsão de entrega</dt>
+                <dd th:text="${o.previsaoEntrega != null} ? ${#temporals.format(o.previsaoEntrega, 'dd/MM/yyyy')} : 'A definir'">data</dd>
+                <dt>Valor até agora</dt>
+                <dd th:text="${#numbers.formatCurrency(o.valorTotal)}">R$</dd>
+            </dl>
+
+            <th:block th:unless="${o.historico.isEmpty()}" th:with="ultima=${o.historico[o.historico.size() - 1]}">
+                <div class="ultima-novidade">
+                    <strong>Última atualização · <span th:text="${#temporals.format(ultima.dataHora, 'dd/MM/yyyy HH:mm')}">data</span></strong>
+                    <span th:text="${ultima.observacao} ?: ${ultima.status.descricao}">Novidade</span>
+                </div>
+            </th:block>
+
+            <div class="acoes espaco">
+                <a class="btn" th:href="@{/area-cliente/ordens/{id}(id=${o.id})}">Ver detalhes e orçamento</a>
+            </div>
+        </article>
+
+        <!-- Histórico -->
+        <h2 class="espaco">Serviços anteriores</h2>
+        <div class="tabela-wrap">
+            <table class="tabela">
+                <thead><tr><th>OS</th><th>Veículo</th><th>Entrada</th><th>Situação</th><th class="num">Valor</th><th><span class="sr-only">Ações</span></th></tr></thead>
+                <tbody>
+                <tr th:each="o : ${finalizadas}">
+                    <td class="nowrap" th:text="${o.numero}">OS</td>
+                    <td><span class="placa" th:text="${o.veiculo.placaFormatada}">ABC</span> <span class="pequeno muted" th:text="${o.veiculo.descricao}">Carro</span></td>
+                    <td class="nowrap" th:text="${#temporals.format(o.dataEntrada, 'dd/MM/yyyy')}">data</td>
+                    <td><span th:replace="~{fragments/layout :: status(${o.status})}"></span></td>
+                    <td class="num" th:text="${#numbers.formatCurrency(o.valorTotal)}">R$</td>
+                    <td class="direita"><a class="btn btn-sm btn-secundario" th:href="@{/area-cliente/ordens/{id}(id=${o.id})}">Detalhes</a></td>
+                </tr>
+                <tr th:if="${finalizadas.isEmpty()}"><td colspan="6" class="tabela-vazia">Nenhum serviço anterior.</td></tr>
+                </tbody>
+            </table>
+        </div>
+
+        <!-- Veículos -->
+        <h2 class="espaco">Meus veículos</h2>
+        <div class="grid grid-3">
+            <div class="card mt-0" th:each="v : ${veiculos}">
+                <span class="placa" th:text="${v.placaFormatada}">ABC</span>
+                <p class="mb-0 espaco" style="margin-top: 10px;"><strong th:text="${v.descricao}">Carro</strong></p>
+                <p class="muted pequeno mb-0" th:if="${v.cor}" th:text="${v.cor}">Cor</p>
+            </div>
+            <p class="muted" th:if="${veiculos.isEmpty()}">Nenhum veículo cadastrado.</p>
+        </div>
+    </div>
+</main>
+</body>
+</html>

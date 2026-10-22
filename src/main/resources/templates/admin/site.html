@@ -1,0 +1,133 @@
+<!DOCTYPE html>
+<html lang="pt-BR" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/layout :: head('Informações do site')}"></head>
+<body>
+<th:block th:replace="~{fragments/layout :: equipe('site')}"></th:block>
+<main class="app-conteudo">
+    <div class="container container-estreito">
+        <div th:replace="~{fragments/layout :: flash}"></div>
+
+        <div class="pagina-titulo">
+            <div>
+                <h1>Informações do site</h1>
+                <p>Tudo o que aparece na tela principal. Os serviços e preços ficam em <a th:href="@{/admin/servicos}">Serviços e preços</a>.</p>
+            </div>
+            <a class="btn btn-secundario" th:href="@{/}" target="_blank" rel="noopener">Ver site ↗</a>
+        </div>
+
+        <form class="form" th:action="@{/admin/site}" th:object="${config}" method="post">
+            <div class="alerta alerta-erro" th:if="${#fields.hasErrors('*')}">Confira os campos destacados.</div>
+
+            <section class="card">
+                <h2>Apresentação</h2>
+                <div class="form">
+                    <div class="campo" th:classappend="${#fields.hasErrors('nomeOficina')} ? 'campo-erro'">
+                        <label for="nomeOficina">Nome da oficina</label>
+                        <input type="text" id="nomeOficina" th:field="*{nomeOficina}" maxlength="100" required>
+                        <span class="erro-campo" th:errors="*{nomeOficina}"></span>
+                    </div>
+                    <div class="campo" th:classappend="${#fields.hasErrors('slogan')} ? 'campo-erro'">
+                        <label for="slogan">Slogan</label>
+                        <input type="text" id="slogan" th:field="*{slogan}" maxlength="200" placeholder="Ex.: Mecânica de confiança para o seu carro">
+                        <span class="erro-campo" th:errors="*{slogan}"></span>
+                    </div>
+                    <div class="campo" th:classappend="${#fields.hasErrors('mensagemDestaque')} ? 'campo-erro'">
+                        <label for="mensagemDestaque">Faixa de destaque (topo do site)</label>
+                        <input type="text" id="mensagemDestaque" th:field="*{mensagemDestaque}" maxlength="300" placeholder="Ex.: Revisão com 10% de desconto em outubro!">
+                        <span class="ajuda">Deixe em branco para não mostrar a faixa.</span>
+                        <span class="erro-campo" th:errors="*{mensagemDestaque}"></span>
+                    </div>
+                </div>
+            </section>
+
+            <section class="card">
+                <h2>Sobre a oficina</h2>
+                <div class="form">
+                    <div class="campo" th:classappend="${#fields.hasErrors('sobre')} ? 'campo-erro'">
+                        <label for="sobre">Texto "Sobre nós"</label>
+                        <textarea id="sobre" th:field="*{sobre}" maxlength="5000" rows="5"></textarea>
+                        <span class="ajuda">Cada linha vira um parágrafo.</span>
+                        <span class="erro-campo" th:errors="*{sobre}"></span>
+                    </div>
+                    <div class="campo" th:classappend="${#fields.hasErrors('diferenciais')} ? 'campo-erro'">
+                        <label for="diferenciais">Diferenciais</label>
+                        <textarea id="diferenciais" th:field="*{diferenciais}" maxlength="2000" rows="5"></textarea>
+                        <span class="ajuda">Um por linha. Aparecem como lista com "check".</span>
+                        <span class="erro-campo" th:errors="*{diferenciais}"></span>
+                    </div>
+                </div>
+            </section>
+
+            <section class="card">
+                <h2>Atendimento</h2>
+                <div class="form">
+                    <div class="campo" th:classappend="${#fields.hasErrors('horarioFuncionamento')} ? 'campo-erro'">
+                        <label for="horarioFuncionamento">Horário de funcionamento</label>
+                        <textarea id="horarioFuncionamento" th:field="*{horarioFuncionamento}" maxlength="1000" rows="4"></textarea>
+                        <span class="ajuda">Um por linha. Ex.: "Segunda a sexta: 8h às 18h".</span>
+                        <span class="erro-campo" th:errors="*{horarioFuncionamento}"></span>
+                    </div>
+                    <div class="campo" th:classappend="${#fields.hasErrors('formasPagamento')} ? 'campo-erro'">
+                        <label for="formasPagamento">Formas de pagamento</label>
+                        <input type="text" id="formasPagamento" th:field="*{formasPagamento}" maxlength="300">
+                        <span class="erro-campo" th:errors="*{formasPagamento}"></span>
+                    </div>
+                </div>
+            </section>
+
+            <section class="card">
+                <h2>Contato e endereço</h2>
+                <div class="form">
+                    <div class="campo" th:classappend="${#fields.hasErrors('endereco')} ? 'campo-erro'">
+                        <label for="endereco">Endereço</label>
+                        <input type="text" id="endereco" th:field="*{endereco}" maxlength="300">
+                        <span class="erro-campo" th:errors="*{endereco}"></span>
+                    </div>
+                    <div class="campo" th:classappend="${#fields.hasErrors('linkMapa')} ? 'campo-erro'">
+                        <label for="linkMapa">Link do mapa (Google Maps)</label>
+                        <input type="text" id="linkMapa" th:field="*{linkMapa}" maxlength="500" placeholder="https://maps.google.com/...">
+                        <span class="ajuda">Precisa começar com https://</span>
+                        <span class="erro-campo" th:errors="*{linkMapa}"></span>
+                    </div>
+                    <div class="form-linha">
+                        <div class="campo" th:classappend="${#fields.hasErrors('telefone')} ? 'campo-erro'">
+                            <label for="telefone">Telefone</label>
+                            <input type="tel" id="telefone" th:field="*{telefone}" maxlength="30">
+                            <span class="erro-campo" th:errors="*{telefone}"></span>
+                        </div>
+                        <div class="campo" th:classappend="${#fields.hasErrors('whatsapp')} ? 'campo-erro'">
+                            <label for="whatsapp">WhatsApp</label>
+                            <input type="tel" id="whatsapp" th:field="*{whatsapp}" maxlength="30" placeholder="(00) 00000-0000">
+                            <span class="ajuda">Com DDD. Gera o botão "Chamar no WhatsApp".</span>
+                            <span class="erro-campo" th:errors="*{whatsapp}"></span>
+                        </div>
+                    </div>
+                    <div class="campo" th:classappend="${#fields.hasErrors('email')} ? 'campo-erro'">
+                        <label for="email">E-mail</label>
+                        <input type="email" id="email" th:field="*{email}" maxlength="120">
+                        <span class="erro-campo" th:errors="*{email}"></span>
+                    </div>
+                    <div class="form-linha">
+                        <div class="campo" th:classappend="${#fields.hasErrors('instagram')} ? 'campo-erro'">
+                            <label for="instagram">Instagram</label>
+                            <input type="text" id="instagram" th:field="*{instagram}" maxlength="300" placeholder="@suaoficina">
+                            <span class="erro-campo" th:errors="*{instagram}"></span>
+                        </div>
+                        <div class="campo" th:classappend="${#fields.hasErrors('facebook')} ? 'campo-erro'">
+                            <label for="facebook">Facebook</label>
+                            <input type="text" id="facebook" th:field="*{facebook}" maxlength="300" placeholder="suaoficina">
+                            <span class="erro-campo" th:errors="*{facebook}"></span>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <div class="form-acoes">
+                <button class="btn btn-grande" type="submit">Salvar informações</button>
+                <a class="btn btn-secundario" th:href="@{/admin}">Cancelar</a>
+            </div>
+        </form>
+    </div>
+</main>
+</body>
+</html>

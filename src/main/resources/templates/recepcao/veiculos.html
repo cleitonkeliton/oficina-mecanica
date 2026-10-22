@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html lang="pt-BR" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/layout :: head('Veículos')}"></head>
+<body>
+<th:block th:replace="~{fragments/layout :: equipe('veiculos')}"></th:block>
+<main class="app-conteudo">
+    <div class="container">
+        <div th:replace="~{fragments/layout :: flash}"></div>
+
+        <div class="pagina-titulo">
+            <div>
+                <h1>Veículos</h1>
+                <p>Todos os carros cadastrados e seus donos.</p>
+            </div>
+            <a class="btn" th:href="@{/recepcao/veiculos/novo}">+ Novo veículo</a>
+        </div>
+
+        <form class="busca" th:action="@{/recepcao/veiculos}" method="get" role="search" style="margin-bottom: 16px;">
+            <label class="sr-only" for="q">Buscar</label>
+            <input type="search" id="q" name="q" th:value="${q}" placeholder="Placa, marca, modelo ou dono">
+            <button class="btn btn-escuro" type="submit">Buscar</button>
+            <a class="btn btn-secundario" th:if="${q}" th:href="@{/recepcao/veiculos}">Limpar</a>
+        </form>
+
+        <div class="tabela-wrap">
+            <table class="tabela">
+                <thead>
+                <tr><th>Placa</th><th>Veículo</th><th>Cor</th><th>Dono</th><th><span class="sr-only">Ações</span></th></tr>
+                </thead>
+                <tbody>
+                <tr th:each="v : ${veiculos}">
+                    <td><a th:href="@{/recepcao/veiculos/{id}(id=${v.id})}"><span class="placa" th:text="${v.placaFormatada}">ABC</span></a></td>
+                    <td th:text="${v.descricao}">Carro</td>
+                    <td th:text="${v.cor} ?: '—'">Cor</td>
+                    <td><a th:href="@{/recepcao/clientes/{id}(id=${v.cliente.id})}" th:text="${v.cliente.nome}">Dono</a></td>
+                    <td class="direita acoes" style="justify-content: flex-end;">
+                        <a class="btn btn-sm" th:href="@{/recepcao/entrada(placa=${v.placa})}">Registrar entrada</a>
+                        <a class="btn btn-sm btn-secundario" th:href="@{/recepcao/veiculos/{id}(id=${v.id})}">Editar</a>
+                    </td>
+                </tr>
+                <tr th:if="${veiculos.isEmpty()}"><td colspan="5" class="tabela-vazia">Nenhum veículo encontrado.</td></tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+</main>
+</body>
+</html>

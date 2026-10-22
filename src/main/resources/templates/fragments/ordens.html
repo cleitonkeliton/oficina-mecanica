@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html lang="pt-BR" xmlns:th="http://www.thymeleaf.org">
+<body>
+<!--/*
+  Tabela de ordens de serviço.
+  rapido = true mostra o seletor para mudar a situação direto na lista (painel).
+*/-->
+<div th:fragment="tabela(ordens, rapido)" class="tabela-wrap">
+    <table class="tabela">
+        <thead>
+        <tr>
+            <th>OS / entrada</th>
+            <th>Veículo</th>
+            <th>Cliente</th>
+            <th>Situação</th>
+            <th>Previsão</th>
+            <th class="num">Valor</th>
+            <th><span class="sr-only">Ações</span></th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr th:each="o : ${ordens}">
+            <td class="nowrap">
+                <a th:href="@{/recepcao/ordens/{id}(id=${o.id})}" th:text="${o.numero}">OS</a>
+                <div class="pequeno muted" th:text="${#temporals.format(o.dataEntrada, 'dd/MM HH:mm')}">01/01</div>
+            </td>
+            <td>
+                <span class="placa" th:text="${o.veiculo.placaFormatada}">ABC1D23</span>
+                <div class="pequeno muted" th:text="${o.veiculo.descricao}">Carro</div>
+            </td>
+            <td>
+                <span th:text="${o.cliente.nome}">Cliente</span>
+                <div class="pequeno muted nowrap" th:if="${o.cliente.telefone}" th:text="${o.cliente.telefone}">Telefone</div>
+            </td>
+            <td>
+                <span th:replace="~{fragments/layout :: status(${o.status})}"></span>
+                <!--/* No painel, muda a situação direto na lista */-->
+                <form th:if="${rapido}" class="status-rapido" th:action="@{/recepcao/ordens/{id}/status(id=${o.id})}" method="post">
+                    <input type="hidden" name="voltar" th:value="${voltarPara} ?: 'painel'">
+                    <label class="sr-only" th:for="'status-' + ${o.id}">Nova situação</label>
+                    <select name="status" th:id="'status-' + ${o.id}">
+                        <option th:each="s : ${statusList}" th:value="${s}" th:text="${s.descricao}"
+                                th:selected="${s == o.status}">Situação</option>
+                    </select>
+                    <button class="btn btn-sm btn-escuro" type="submit">OK</button>
+                </form>
+            </td>
+            <td class="nowrap">
+                <span th:if="${o.previsaoEntrega}" th:text="${#temporals.format(o.previsaoEntrega, 'dd/MM/yyyy')}">01/01</span>
+                <span th:unless="${o.previsaoEntrega}" class="muted">—</span>
+                <div><span class="tag-atraso" th:if="${o.atrasada}">Atrasado</span></div>
+            </td>
+            <td class="num" th:text="${#numbers.formatCurrency(o.valorTotal)}">R$ 0,00</td>
+            <td><a class="btn btn-sm btn-secundario" th:href="@{/recepcao/ordens/{id}(id=${o.id})}">Abrir</a></td>
+        </tr>
+        <tr th:if="${ordens.isEmpty()}">
+            <td colspan="7" class="tabela-vazia">Nenhuma ordem de serviço encontrada.</td>
+        </tr>
+        </tbody>
+    </table>
+</div>
+</body>
+</html>

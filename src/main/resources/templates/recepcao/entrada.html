@@ -1,0 +1,135 @@
+<!DOCTYPE html>
+<html lang="pt-BR" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/layout :: head('Registrar entrada')}"></head>
+<body>
+<th:block th:replace="~{fragments/layout :: equipe('entrada')}"></th:block>
+<main class="app-conteudo">
+    <div class="container">
+        <div th:replace="~{fragments/layout :: flash}"></div>
+
+        <div class="pagina-titulo">
+            <div>
+                <h1>Registrar entrada de veículo</h1>
+                <p>Digite a placa. Se o carro já for cadastrado, é só preencher a entrada; se não, cadastre o carro e o dono.</p>
+            </div>
+        </div>
+
+        <div class="card">
+            <form class="busca" th:action="@{/recepcao/entrada}" method="get">
+                <label class="sr-only" for="placa">Placa</label>
+                <input type="text" id="placa" name="placa" th:value="${placa}" placeholder="Placa (ABC-1234 ou ABC1D23)"
+                       maxlength="10" style="text-transform: uppercase; font-size: 1.15rem; font-weight: 700; letter-spacing: .05em;"
+                       required autofocus>
+                <button class="btn btn-grande" type="submit">Buscar placa</button>
+            </form>
+        </div>
+
+        <!-- Placa ainda não cadastrada -->
+        <div class="card" th:if="${buscou == true and veiculo == null}">
+            <h2>Placa <span class="placa" th:text="${placaNormalizada}">ABC1D23</span> não cadastrada</h2>
+            <p class="muted">Cadastre o veículo. Se o dono ainda não for cliente, dá para cadastrá-lo pelo caminho.</p>
+            <div class="acoes">
+                <a class="btn" th:href="@{/recepcao/veiculos/novo(placa=${placaNormalizada}, voltar='entrada')}">Cadastrar veículo</a>
+                <a class="btn btn-secundario" th:href="@{/recepcao/clientes/novo(voltar='veiculo', placa=${placaNormalizada})}">Cadastrar novo cliente e depois o veículo</a>
+            </div>
+        </div>
+
+        <!-- Veículo encontrado -->
+        <th:block th:if="${veiculo != null}">
+            <div class="grid grid-2 espaco">
+                <div class="card mt-0">
+                    <div class="card-titulo">
+                        <h3>Veículo</h3>
+                        <a class="btn btn-sm btn-secundario" th:href="@{/recepcao/veiculos/{id}(id=${veiculo.id})}">Editar</a>
+                    </div>
+                    <dl class="dados">
+                        <dt>Placa</dt><dd><span class="placa" th:text="${veiculo.placaFormatada}">ABC1D23</span></dd>
+                        <dt>Veículo</dt><dd th:text="${veiculo.descricao}">Carro</dd>
+                        <dt>Cor</dt><dd th:text="${veiculo.cor} ?: '—'">Cor</dd>
+                    </dl>
+                </div>
+                <div class="card mt-0">
+                    <div class="card-titulo">
+                        <h3>Dono</h3>
+                        <a class="btn btn-sm btn-secundario" th:href="@{/recepcao/clientes/{id}(id=${veiculo.cliente.id})}">Ver cliente</a>
+                    </div>
+                    <dl class="dados">
+                        <dt>Nome</dt><dd th:text="${veiculo.cliente.nome}">Nome</dd>
+                        <dt>CPF</dt><dd th:text="${veiculo.cliente.cpfFormatado}">CPF</dd>
+                        <dt>Telefone</dt><dd th:text="${veiculo.cliente.telefone} ?: '—'">Telefone</dd>
+                        <dt>Acesso ao site</dt>
+                        <dd>
+                            <span th:if="${clienteTemAcesso}" style="color: var(--sucesso);">Liberado (login: CPF)</span>
+                            <span th:unless="${clienteTemAcesso}">
+                                Não liberado ·
+                                <a th:href="@{/recepcao/clientes/{id}(id=${veiculo.cliente.id})}">liberar para acompanhar pelo site</a>
+                            </span>
+                        </dd>
+                    </dl>
+                </div>
+            </div>
+
+            <!-- Já está na oficina -->
+            <div class="alerta alerta-aviso espaco" th:if="${ordemAberta != null}">
+                Este carro já está na oficina:
+                <a th:href="@{/recepcao/ordens/{id}(id=${ordemAberta.id})}" th:text="${ordemAberta.numero}">OS</a>
+                (<span th:text="${ordemAberta.status.descricao}">situação</span>).
+            </div>
+
+            <!-- Formulário de entrada -->
+            <div class="card espaco" th:if="${ordemAberta == null}">
+                <h2>Dados da entrada</h2>
+                <form class="form" th:action="@{/recepcao/ordens}" th:object="${ordemForm}" method="post">
+                    <input type="hidden" th:field="*{veiculoId}">
+                    <div class="alerta alerta-erro" th:if="${#fields.hasGlobalErrors()}" th:each="e : ${#fields.globalErrors()}" th:text="${e}"></div>
+
+                    <div class="form-linha">
+                        <div class="campo" th:classappend="${#fields.hasErrors('quilometragem')} ? 'campo-erro'">
+                            <label for="quilometragem">Quilometragem</label>
+                            <input type="number" min="0" id="quilometragem" th:field="*{quilometragem}" placeholder="Ex.: 85000">
+                            <span class="erro-campo" th:errors="*{quilometragem}"></span>
+                        </div>
+                        <div class="campo" th:classappend="${#fields.hasErrors('previsaoEntrega')} ? 'campo-erro'">
+                            <label for="previsaoEntrega">Previsão de entrega</label>
+                            <input type="date" id="previsaoEntrega" th:field="*{previsaoEntrega}" th:min="${#temporals.format(#temporals.createToday(), 'yyyy-MM-dd')}">
+                            <span class="ajuda">Pode deixar em branco e definir depois do orçamento.</span>
+                            <span class="erro-campo" th:errors="*{previsaoEntrega}"></span>
+                        </div>
+                    </div>
+
+                    <div class="campo" th:classappend="${#fields.hasErrors('descricaoProblema')} ? 'campo-erro'">
+                        <label for="descricaoProblema">O que o cliente relatou</label>
+                        <textarea id="descricaoProblema" th:field="*{descricaoProblema}" maxlength="2000"
+                                  placeholder="Ex.: barulho na roda dianteira ao frear; luz da injeção acesa"></textarea>
+                        <span class="erro-campo" th:errors="*{descricaoProblema}"></span>
+                    </div>
+
+                    <div class="campo">
+                        <span class="rotulo">Serviços solicitados <span class="muted pequeno">(opcional, dá para lançar depois)</span></span>
+                        <div class="servicos-checks">
+                            <label class="check" th:each="s : ${servicos}">
+                                <input type="checkbox" th:field="*{servicoIds}" th:value="${s.id}">
+                                <span th:text="${s.nome}">Serviço</span>
+                                <span class="preco" th:text="(${s.precoAPartirDe} ? 'a partir de ' : '') + ${#numbers.formatCurrency(s.preco)}">R$</span>
+                            </label>
+                        </div>
+                    </div>
+
+                    <div class="campo" th:classappend="${#fields.hasErrors('observacoes')} ? 'campo-erro'">
+                        <label for="observacoes">Observações para o cliente</label>
+                        <textarea id="observacoes" th:field="*{observacoes}" maxlength="2000"
+                                  placeholder="Aparece para o dono do carro na área do cliente"></textarea>
+                        <span class="erro-campo" th:errors="*{observacoes}"></span>
+                    </div>
+
+                    <div class="form-acoes">
+                        <button class="btn btn-grande" type="submit">Registrar entrada</button>
+                        <a class="btn btn-secundario" th:href="@{/recepcao}">Cancelar</a>
+                    </div>
+                </form>
+            </div>
+        </th:block>
+    </div>
+</main>
+</body>
+</html>

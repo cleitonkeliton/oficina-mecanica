@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html lang="pt-BR" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/layout :: head(${ordem.numero})}"></head>
+<body>
+<header th:replace="~{fragments/layout :: cliente}"></header>
+<main class="app-conteudo">
+    <div class="container">
+        <a class="voltar" th:href="@{/area-cliente}">&larr; Meus carros</a>
+
+        <div class="pagina-titulo">
+            <div>
+                <div class="ordem-cabecalho">
+                    <h1 th:text="${ordem.veiculo.descricao}">Carro</h1>
+                    <span class="placa" th:text="${ordem.veiculo.placaFormatada}">ABC</span>
+                </div>
+                <p th:text="${ordem.numero} + ' · entrada em ' + ${#temporals.format(ordem.dataEntrada, 'dd/MM/yyyy HH:mm')}">OS</p>
+            </div>
+            <span th:replace="~{fragments/layout :: status(${ordem.status})}"></span>
+        </div>
+
+        <div class="grid grid-lateral">
+            <div>
+                <section class="card mt-0" th:unless="${ordem.status.name() == 'CANCELADO'}">
+                    <h2>Andamento</h2>
+                    <ol th:replace="~{fragments/layout :: etapas(${ordem})}"></ol>
+                    <div class="alerta alerta-sucesso mb-0 espaco" th:if="${ordem.status.name() == 'PRONTO'}">Seu carro está pronto para retirada!</div>
+                    <div class="alerta alerta-aviso mb-0 espaco" th:if="${ordem.status.name() == 'AGUARDANDO_APROVACAO'}">
+                        Estamos aguardando a sua aprovação do orçamento.
+                        <th:block th:if="${site.whatsappLink}">Responda pelo <a th:href="${site.whatsappLink}" target="_blank" rel="noopener">WhatsApp</a>.</th:block>
+                    </div>
+                </section>
+                <div class="alerta alerta-erro" th:if="${ordem.status.name() == 'CANCELADO'}">Este serviço foi cancelado.</div>
+
+                <section class="card">
+                    <div class="card-titulo">
+                        <h2>Serviços e valores</h2>
+                        <span class="total-grande" style="font-size: 1.2rem;" th:text="${#numbers.formatCurrency(ordem.valorTotal)}">R$</span>
+                    </div>
+                    <div class="tabela-wrap">
+                        <table class="tabela">
+                            <thead><tr><th>Descrição</th><th class="num">Qtd.</th><th class="num">Valor</th><th class="num">Subtotal</th></tr></thead>
+                            <tbody>
+                            <tr th:each="item : ${ordem.itens}">
+                                <td th:text="${item.descricao}">Item</td>
+                                <td class="num" th:text="${item.quantidade}">1</td>
+                                <td class="num" th:text="${#numbers.formatCurrency(item.valorUnitario)}">R$</td>
+                                <td class="num" th:text="${#numbers.formatCurrency(item.subtotal)}">R$</td>
+                            </tr>
+                            <tr th:if="${ordem.itens.isEmpty()}"><td colspan="4" class="tabela-vazia">O orçamento ainda está sendo feito.</td></tr>
+                            </tbody>
+                            <tfoot th:unless="${ordem.itens.isEmpty()}">
+                            <tr><td colspan="3">Total</td><td class="num" th:text="${#numbers.formatCurrency(ordem.valorTotal)}">R$</td></tr>
+                            </tfoot>
+                        </table>
+                    </div>
+                </section>
+
+                <section class="card" th:if="${ordem.descricaoProblema != null or ordem.observacoes != null}">
+                    <h2>Informações</h2>
+                    <th:block th:if="${ordem.descricaoProblema}">
+                        <h3 class="pequeno muted mb-0">O que você relatou</h3>
+                        <p class="pre-linha" th:text="${ordem.descricaoProblema}">Problema</p>
+                    </th:block>
+                    <th:block th:if="${ordem.observacoes}">
+                        <h3 class="pequeno muted mb-0">Observações da oficina</h3>
+                        <p class="pre-linha mb-0" th:text="${ordem.observacoes}">Obs</p>
+                    </th:block>
+                </section>
+            </div>
+
+            <aside>
+                <section class="card mt-0">
+                    <h3>Datas</h3>
+                    <dl class="dados">
+                        <dt>Entrada</dt><dd th:text="${#temporals.format(ordem.dataEntrada, 'dd/MM/yyyy')}">data</dd>
+                        <dt>Previsão</dt><dd th:text="${ordem.previsaoEntrega != null} ? ${#temporals.format(ordem.previsaoEntrega, 'dd/MM/yyyy')} : 'A definir'">data</dd>
+                        <dt th:if="${ordem.dataConclusao}">Ficou pronto</dt><dd th:if="${ordem.dataConclusao}" th:text="${#temporals.format(ordem.dataConclusao, 'dd/MM/yyyy HH:mm')}">data</dd>
+                        <dt th:if="${ordem.dataEntrega}">Retirado</dt><dd th:if="${ordem.dataEntrega}" th:text="${#temporals.format(ordem.dataEntrega, 'dd/MM/yyyy HH:mm')}">data</dd>
+                        <dt th:if="${ordem.quilometragem}">Km na entrada</dt><dd th:if="${ordem.quilometragem}" th:text="${#numbers.formatInteger(ordem.quilometragem, 1, 'POINT')} + ' km'">km</dd>
+                    </dl>
+                </section>
+
+                <section class="card">
+                    <h3>Atualizações</h3>
+                    <ol class="timeline">
+                        <li th:each="h : ${ordem.historico}">
+                            <span th:replace="~{fragments/layout :: status(${h.status})}"></span>
+                            <div class="quando" th:text="${#temporals.format(h.dataHora, 'dd/MM/yyyy HH:mm')}">data</div>
+                            <p class="obs" th:if="${h.observacao}" th:text="${h.observacao}">obs</p>
+                        </li>
+                    </ol>
+                </section>
+
+                <section class="card" th:if="${site.telefone != null or site.whatsappLink != null}">
+                    <h3>Dúvidas?</h3>
+                    <p class="pequeno muted">Fale com a recepção informando o número <strong th:text="${ordem.numero}">OS</strong>.</p>
+                    <div class="acoes">
+                        <a class="btn btn-whats btn-sm" th:if="${site.whatsappLink}" th:href="${site.whatsappLink}" target="_blank" rel="noopener">WhatsApp</a>
+                        <a class="btn btn-secundario btn-sm" th:if="${site.telefone}" th:href="${site.telefoneLink}" th:text="${site.telefone}">Telefone</a>
+                    </div>
+                </section>
+            </aside>
+        </div>
+    </div>
+</main>
+</body>
+</html>

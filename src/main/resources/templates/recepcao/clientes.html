@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="pt-BR" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/layout :: head('Clientes')}"></head>
+<body>
+<th:block th:replace="~{fragments/layout :: equipe('clientes')}"></th:block>
+<main class="app-conteudo">
+    <div class="container">
+        <div th:replace="~{fragments/layout :: flash}"></div>
+
+        <div class="pagina-titulo">
+            <div>
+                <h1>Clientes</h1>
+                <p>Donos dos carros. Com o acesso liberado, o cliente acompanha o carro pelo site usando o CPF.</p>
+            </div>
+            <a class="btn" th:href="@{/recepcao/clientes/novo}">+ Novo cliente</a>
+        </div>
+
+        <form class="busca" th:action="@{/recepcao/clientes}" method="get" role="search" style="margin-bottom: 16px;">
+            <label class="sr-only" for="q">Buscar</label>
+            <input type="search" id="q" name="q" th:value="${q}" placeholder="Nome, CPF ou telefone">
+            <button class="btn btn-escuro" type="submit">Buscar</button>
+            <a class="btn btn-secundario" th:if="${q}" th:href="@{/recepcao/clientes}">Limpar</a>
+        </form>
+
+        <div class="tabela-wrap">
+            <table class="tabela">
+                <thead>
+                <tr>
+                    <th>Nome</th>
+                    <th>CPF</th>
+                    <th>Telefone</th>
+                    <th>Veículos</th>
+                    <th><span class="sr-only">Ações</span></th>
+                </tr>
+                </thead>
+                <tbody>
+                <tr th:each="c : ${clientes}">
+                    <td><a th:href="@{/recepcao/clientes/{id}(id=${c.id})}" th:text="${c.nome}">Nome</a></td>
+                    <td class="nowrap" th:text="${c.cpfFormatado}">CPF</td>
+                    <td class="nowrap" th:text="${c.telefone} ?: '—'">Telefone</td>
+                    <td>
+                        <span th:each="v, i : ${c.veiculos}"><span class="placa" th:text="${v.placaFormatada}">ABC</span> </span>
+                        <span th:if="${c.veiculos.isEmpty()}" class="muted">—</span>
+                    </td>
+                    <td class="direita"><a class="btn btn-sm btn-secundario" th:href="@{/recepcao/clientes/{id}(id=${c.id})}">Abrir</a></td>
+                </tr>
+                <tr th:if="${clientes.isEmpty()}">
+                    <td colspan="5" class="tabela-vazia">Nenhum cliente encontrado.</td>
+                </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+</main>
+</body>
+</html>

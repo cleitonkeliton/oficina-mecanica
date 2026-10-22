@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html lang="pt-BR" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/layout :: head('Administração')}"></head>
+<body>
+<th:block th:replace="~{fragments/layout :: equipe('admin')}"></th:block>
+<main class="app-conteudo">
+    <div class="container">
+        <div th:replace="~{fragments/layout :: flash}"></div>
+
+        <div class="pagina-titulo">
+            <div>
+                <h1>Painel do administrador</h1>
+                <p>Visão geral da oficina, dos carros e do site.</p>
+            </div>
+            <div class="acoes">
+                <a class="btn" th:href="@{/recepcao/entrada}">+ Registrar entrada</a>
+                <a class="btn btn-secundario" th:href="@{/admin/site}">Editar site</a>
+            </div>
+        </div>
+
+        <div class="stats">
+            <a class="stat stat-destaque" th:href="@{/recepcao}">
+                <div class="valor" th:text="${totalNaOficina}">0</div>
+                <div class="rotulo">Carros na oficina</div>
+            </a>
+            <a class="stat stat-sucesso" th:href="@{/recepcao/ordens(status='PRONTO')}">
+                <div class="valor" th:text="${totalProntos}">0</div>
+                <div class="rotulo">Prontos para retirada</div>
+            </a>
+            <a class="stat stat-perigo" th:href="@{/recepcao/ordens(atrasados=true)}">
+                <div class="valor" th:text="${totalAtrasados}">0</div>
+                <div class="rotulo">Com entrega atrasada</div>
+            </a>
+            <a class="stat" th:href="@{/recepcao/ordens(status='ENTREGUE')}">
+                <div class="valor" th:text="${totalEntregues}">0</div>
+                <div class="rotulo">Entregues (total)</div>
+            </a>
+            <a class="stat" th:href="@{/recepcao/clientes}">
+                <div class="valor" th:text="${totalClientes}">0</div>
+                <div class="rotulo">Clientes cadastrados</div>
+            </a>
+            <a class="stat" th:href="@{/admin/servicos}">
+                <div class="valor" th:text="${totalServicos}">0</div>
+                <div class="rotulo">Serviços no site</div>
+            </a>
+        </div>
+
+        <div class="card-titulo">
+            <h2>Situação dos carros na oficina</h2>
+            <a th:href="@{/recepcao/ordens}">Ver todas as ordens &rarr;</a>
+        </div>
+        <div class="chips">
+            <th:block th:each="s : ${statusList}" th:unless="${s.finalizado}">
+                <a class="chip" th:href="@{/recepcao/ordens(status=${s})}">
+                    <span th:text="${s.descricao}">Situação</span>
+                    <span class="qtd" th:text="${contagem.get(s)}">0</span>
+                </a>
+            </th:block>
+        </div>
+        <div th:replace="~{fragments/ordens :: tabela(${ordens}, true)}"></div>
+
+        <div class="grid grid-3 espaco">
+            <a class="card stat mt-0" th:href="@{/admin/servicos}">
+                <h3>Serviços e preços</h3>
+                <p class="muted mb-0">Adicione, altere valores ou esconda serviços da tela principal.</p>
+            </a>
+            <a class="card stat mt-0" th:href="@{/admin/site}">
+                <h3>Informações do site</h3>
+                <p class="muted mb-0">Nome, slogan, sobre, horários, endereço, telefone e redes sociais.</p>
+            </a>
+            <a class="card stat mt-0" th:href="@{/admin/usuarios}">
+                <h3>Usuários da equipe</h3>
+                <p class="muted mb-0">Crie logins para a recepção e outros administradores.</p>
+            </a>
+        </div>
+    </div>
+</main>
+</body>
+</html>

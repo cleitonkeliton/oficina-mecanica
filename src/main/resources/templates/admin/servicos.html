@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html lang="pt-BR" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/layout :: head('Serviços e preços')}"></head>
+<body>
+<th:block th:replace="~{fragments/layout :: equipe('servicos')}"></th:block>
+<main class="app-conteudo">
+    <div class="container">
+        <div th:replace="~{fragments/layout :: flash}"></div>
+
+        <div class="pagina-titulo">
+            <div>
+                <h1>Serviços e preços</h1>
+                <p>Os serviços visíveis aparecem na tela principal do site e na entrada dos carros.</p>
+            </div>
+            <a class="btn" th:href="@{/admin/servicos/novo}">+ Novo serviço</a>
+        </div>
+
+        <div class="tabela-wrap">
+            <table class="tabela">
+                <thead>
+                <tr>
+                    <th>Serviço</th>
+                    <th class="num">Preço</th>
+                    <th>Tempo</th>
+                    <th>No site</th>
+                    <th><span class="sr-only">Ações</span></th>
+                </tr>
+                </thead>
+                <tbody>
+                <tr th:each="s : ${servicos}" th:classappend="${!s.ativo} ? 'inativo'">
+                    <td>
+                        <strong th:text="${s.nome}">Serviço</strong>
+                        <div class="pequeno muted" th:text="${s.descricao}">Descrição</div>
+                    </td>
+                    <td class="num">
+                        <span class="pequeno muted" th:if="${s.precoAPartirDe}">a partir de</span>
+                        <span th:text="${#numbers.formatCurrency(s.preco)}">R$</span>
+                    </td>
+                    <td th:text="${s.tempoEstimado} ?: '—'">Tempo</td>
+                    <td>
+                        <span class="badge status-pronto" th:if="${s.ativo}">Visível</span>
+                        <span class="badge status-aguardando-avaliacao" th:unless="${s.ativo}">Oculto</span>
+                    </td>
+                    <td>
+                        <div class="acoes" style="justify-content: flex-end;">
+                            <a class="btn btn-sm btn-secundario" th:href="@{/admin/servicos/{id}/editar(id=${s.id})}">Editar</a>
+                            <form th:action="@{/admin/servicos/{id}/ativo(id=${s.id})}" method="post">
+                                <button class="btn btn-sm btn-secundario" type="submit" th:text="${s.ativo} ? 'Ocultar' : 'Mostrar'">Ocultar</button>
+                            </form>
+                            <form th:action="@{/admin/servicos/{id}/excluir(id=${s.id})}" method="post"
+                                  th:attr="data-confirmar='Excluir o serviço ' + ${s.nome} + '?'">
+                                <button class="btn btn-sm btn-perigo" type="submit">Excluir</button>
+                            </form>
+                        </div>
+                    </td>
+                </tr>
+                <tr th:if="${servicos.isEmpty()}"><td colspan="5" class="tabela-vazia">Nenhum serviço cadastrado.</td></tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+</main>
+</body>
+</html>

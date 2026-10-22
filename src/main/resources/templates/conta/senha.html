@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html lang="pt-BR" xmlns:th="http://www.thymeleaf.org"
+      xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<head th:replace="~{fragments/layout :: head('Trocar senha')}"></head>
+<body>
+<th:block sec:authorize="hasRole('CLIENTE')">
+    <header th:replace="~{fragments/layout :: cliente}"></header>
+</th:block>
+<th:block sec:authorize="!hasRole('CLIENTE')">
+    <th:block th:replace="~{fragments/layout :: equipe('')}"></th:block>
+</th:block>
+<main class="app-conteudo">
+    <div class="container container-estreito">
+        <div th:replace="~{fragments/layout :: flash}"></div>
+        <div class="pagina-titulo">
+            <div>
+                <h1>Trocar senha</h1>
+                <p>Entrando como <strong sec:authentication="principal.nome">Nome</strong>.</p>
+            </div>
+        </div>
+        <div class="card">
+            <form class="form" th:action="@{/conta/senha}" th:object="${senhaForm}" method="post">
+                <div class="campo" th:classappend="${#fields.hasErrors('senhaAtual')} ? 'campo-erro'">
+                    <label for="senhaAtual">Senha atual</label>
+                    <input type="password" id="senhaAtual" th:field="*{senhaAtual}" autocomplete="current-password" required>
+                    <span class="erro-campo" th:errors="*{senhaAtual}"></span>
+                </div>
+                <div class="campo" th:classappend="${#fields.hasErrors('novaSenha')} ? 'campo-erro'">
+                    <label for="novaSenha">Nova senha</label>
+                    <input type="password" id="novaSenha" th:field="*{novaSenha}" minlength="6" maxlength="60" autocomplete="new-password" required>
+                    <span class="ajuda">Mínimo 6 caracteres.</span>
+                    <span class="erro-campo" th:errors="*{novaSenha}"></span>
+                </div>
+                <div class="campo" th:classappend="${#fields.hasErrors('confirmacao')} ? 'campo-erro'">
+                    <label for="confirmacao">Repita a nova senha</label>
+                    <input type="password" id="confirmacao" th:field="*{confirmacao}" maxlength="60" autocomplete="new-password" required>
+                    <span class="erro-campo" th:errors="*{confirmacao}"></span>
+                </div>
+                <div class="form-acoes">
+                    <button class="btn" type="submit">Salvar nova senha</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</main>
+</body>
+</html>
